@@ -35,7 +35,7 @@ class FPE_ImplTest {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3ad21414";
 
-      String secret = "abc aef oza";
+      String secret = "abc aef OZA";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
       fpe.useCustom();
