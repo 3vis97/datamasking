@@ -77,5 +77,24 @@ public class FPE_Impl {
     }
   }
 
+  public void decryptClass(Object classToCrypt, List<String> fieldsToCrypt) throws IllegalAccessException {
+    Field[] classFields = classToCrypt.getClass().getFields();
+    for (Field field : classFields) {
+      if (fieldsToCrypt.contains(field.getName())) {
+        field.setAccessible(true);
+        if (field.isAnnotationPresent(DataCrypt.class)) {
+          DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
+          if ((dataCryptInstance.dataType().equals(DataCrypt.DataType.FIRST_NAME)) ||
+              (dataCryptInstance.dataType().equals(DataCrypt.DataType.LAST_NAME)) ||
+              (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING))) {
+            if (field.getType().equals(String.class)) {
+              field.set(classToCrypt, decrypt(field.get(classToCrypt).toString()));
+            }
+          }
+        }
+      }
+    }
+  }
+
 
 }

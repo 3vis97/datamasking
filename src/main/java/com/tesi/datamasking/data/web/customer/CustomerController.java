@@ -36,8 +36,8 @@ public class CustomerController {
     return repository.findAll();
   }
 
-  @PostMapping("dataMasking/maskData")
-  GenericRestResponse maskData(@RequestBody
+  @PostMapping("dataMasking/cryptData")
+  GenericRestResponse cryptData(@RequestBody
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
 
@@ -46,7 +46,28 @@ public class CustomerController {
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       fpe.useCustom();
       for (Customer customer : allCustomers) {
-        fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fieldsToCrypt));
+        fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
+        repository.save(customer);
+      }
+      restResponse.success = true;
+    }
+    catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/decryptData")
+  GenericRestResponse decryptData(@RequestBody
+      PseudonymizationSetup pseudonymizationSetup) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+    try {
+      List<Customer> allCustomers = repository.findAll();
+      FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
+      fpe.useCustom();
+      for (Customer customer : allCustomers) {
+        fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
         repository.save(customer);
       }
       restResponse.success = true;

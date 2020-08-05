@@ -19,13 +19,13 @@ public class LoadDatabase {
   @Bean
   CommandLineRunner initDatabase(CustomerRepository repository) {
     return args -> {
-      log.info("Delete all previous entries... ");
-      repository.deleteAll();
-      log.info("Load data... ");
-      for (int i=0; i < 10; i++) {
-        repository.save(generateRandomCustomer());
-      }
-      log.info("...done! ");
+//      log.info("Delete all previous entries... ");
+//      repository.deleteAll();
+//      log.info("Load data... ");
+//      for (int i=0; i < 10; i++) {
+//        repository.save(generateRandomCustomer());
+//      }
+//      log.info("...done! ");
     };
   }
 

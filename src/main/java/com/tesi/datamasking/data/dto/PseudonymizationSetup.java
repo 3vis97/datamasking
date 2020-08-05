@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public class PseudonymizationSetup implements Serializable {
 
-  public String[] fieldsToCrypt;
+  public String[] fields;
 
 }
