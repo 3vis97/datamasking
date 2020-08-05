@@ -2,19 +2,12 @@ package com.tesi.datamasking.algorithm.fpe;
 
 import com.idealista.fpe.FormatPreservingEncryption;
 import com.idealista.fpe.builder.FormatPreservingEncryptionBuilder;
-import com.idealista.fpe.component.functions.prf.DefaultPseudoRandomFunction;
-import com.idealista.fpe.config.Defaults;
 import com.idealista.fpe.config.GenericDomain;
 import com.idealista.fpe.config.GenericTransformations;
-import com.idealista.fpe.config.LengthRange;
-import com.idealista.fpe.config.basic.BasicAlphabet;
-import com.idealista.fpe.transformer.IntToTextTransformer;
-import com.idealista.fpe.transformer.TextToIntTransformer;
 import com.tesi.datamasking.algorithm.fpe.customAlphabet.CustomAlphabet;
 import com.tesi.datamasking.context.DataCrypt;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 
 public class FPE_Impl {
