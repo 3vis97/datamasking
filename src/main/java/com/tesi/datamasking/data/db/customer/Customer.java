@@ -1,5 +1,7 @@
 package com.tesi.datamasking.data.db.customer;
 
+import com.tesi.datamasking.context.DataCrypt;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,8 +16,10 @@ public class Customer {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Integer customerId;
 
+  @DataCrypt(dataType = DataCrypt.DataType.FIRST_NAME)
   public String firstName;
 
+  @DataCrypt(dataType = DataCrypt.DataType.LAST_NAME)
   public String lastName;
 
   public String phone;

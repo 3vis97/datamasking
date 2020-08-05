@@ -22,7 +22,7 @@ public class LoadDatabase {
       log.info("Delete all previous entries... ");
       repository.deleteAll();
       log.info("Load data... ");
-      for (int i=0; i < 100; i++) {
+      for (int i=0; i < 10; i++) {
         repository.save(generateRandomCustomer());
       }
       log.info("...done! ");

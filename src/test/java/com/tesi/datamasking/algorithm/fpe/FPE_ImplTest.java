@@ -35,7 +35,22 @@ class FPE_ImplTest {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3ad21414";
 
-      String secret = "abc aef OZA";
+      String secret = "LAST day of JUNE";
+
+      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      fpe.useCustom();
+      String secretEncrypted = fpe.encrypt(secret);
+      String secretDecrypted = fpe.decrypt(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
+    }
+
+    @Test
+    public void check_decryption_with_samechars() {
+      String key1 = "12Cd#94qpz!%4/(0";
+      String key2 = "353fwafwg3ad21414";
+
+      String secret = "aaaaaa";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
       fpe.useCustom();

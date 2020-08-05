@@ -11,6 +11,11 @@ import com.idealista.fpe.config.basic.BasicAlphabet;
 import com.idealista.fpe.transformer.IntToTextTransformer;
 import com.idealista.fpe.transformer.TextToIntTransformer;
 import com.tesi.datamasking.algorithm.fpe.customAlphabet.CustomAlphabet;
+import com.tesi.datamasking.context.DataCrypt;
+
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
 
 public class FPE_Impl {
 
@@ -50,6 +55,26 @@ public class FPE_Impl {
 
   public String decrypt(String stringToDecrypt) {
     return formatPreservingEncryption.decrypt(stringToDecrypt, KEY_2.getBytes());
+  }
+
+
+  public void cryptClass(Object classToCrypt, List<String> fieldsToCrypt) throws IllegalAccessException {
+    Field[] classFields = classToCrypt.getClass().getFields();
+    for (Field field : classFields) {
+      if (fieldsToCrypt.contains(field.getName())) {
+        field.setAccessible(true);
+        if (field.isAnnotationPresent(DataCrypt.class)) {
+          DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
+          if ((dataCryptInstance.dataType().equals(DataCrypt.DataType.FIRST_NAME)) ||
+              (dataCryptInstance.dataType().equals(DataCrypt.DataType.LAST_NAME)) ||
+              (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING))) {
+            if (field.getType().equals(String.class)) {
+              field.set(classToCrypt, encrypt(field.get(classToCrypt).toString()));
+            }
+          }
+        }
+      }
+    }
   }
 
 

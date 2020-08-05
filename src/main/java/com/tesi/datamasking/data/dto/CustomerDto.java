@@ -1,4 +1,4 @@
-package com.tesi.datamasking.data.db.customer;
+package com.tesi.datamasking.data.dto;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
