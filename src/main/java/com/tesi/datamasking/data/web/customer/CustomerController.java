@@ -31,6 +31,7 @@ public class CustomerController {
   public CustomerController (CustomerRepository customerRepository) {
     this.repository = customerRepository;
   }
+
   @GetMapping("dataMasking/customer")
   List<Customer> all() {
     return repository.findAll();
