@@ -45,7 +45,7 @@ public class CustomerController {
     try {
       List<Customer> allCustomers = repository.findAll();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
-      fpe.useCustom();
+      fpe.useCustomAlphabet();
       for (Customer customer : allCustomers) {
         fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
         repository.save(customer);
@@ -66,7 +66,7 @@ public class CustomerController {
     try {
       List<Customer> allCustomers = repository.findAll();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
-      fpe.useCustom();
+      fpe.useCustomAlphabet();
       for (Customer customer : allCustomers) {
         fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
         repository.save(customer);

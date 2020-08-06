@@ -4,7 +4,9 @@ import com.idealista.fpe.FormatPreservingEncryption;
 import com.idealista.fpe.builder.FormatPreservingEncryptionBuilder;
 import com.idealista.fpe.config.GenericDomain;
 import com.idealista.fpe.config.GenericTransformations;
-import com.tesi.datamasking.algorithm.fpe.customAlphabet.CustomAlphabet;
+import com.tesi.datamasking.algorithm.fpe.custom.AllChars;
+import com.tesi.datamasking.algorithm.fpe.custom.CustomAlphabet;
+import com.tesi.datamasking.algorithm.fpe.custom.UnicodeChars;
 import com.tesi.datamasking.context.DataCrypt;
 
 import java.lang.reflect.Field;
@@ -32,7 +34,7 @@ public class FPE_Impl {
         .build();
   }
 
-  public void useCustom() {
+  public void useCustomAlphabet() {
     CustomAlphabet customAlphabet = new CustomAlphabet();
     formatPreservingEncryption = FormatPreservingEncryptionBuilder
         .ff1Implementation()
@@ -42,11 +44,33 @@ public class FPE_Impl {
         .build();
   }
 
-  public String encrypt(String stringToEncrypt) {
+  public void useAlphaNumeric() {
+    AllChars allChars = new AllChars();
+    formatPreservingEncryption = FormatPreservingEncryptionBuilder
+        .ff1Implementation()
+        .withDomain(new GenericDomain(
+            allChars, new GenericTransformations(allChars.availableCharacters()), new GenericTransformations(allChars.availableCharacters())))
+        .withDefaultPseudoRandomFunction(KEY_1.getBytes())
+        .withDefaultLengthRange()
+        .build();
+  }
+
+  public void useUnicodeChar() {
+    UnicodeChars unicodeChars = new UnicodeChars();
+    formatPreservingEncryption = FormatPreservingEncryptionBuilder
+        .ff1Implementation()
+        .withDomain(new GenericDomain(
+            unicodeChars, new GenericTransformations(unicodeChars.availableCharacters()), new GenericTransformations(unicodeChars.availableCharacters())))
+        .withDefaultPseudoRandomFunction(KEY_1.getBytes())
+        .withDefaultLengthRange()
+        .build();
+  }
+
+  public String encryptString(String stringToEncrypt) {
       return formatPreservingEncryption.encrypt(stringToEncrypt, KEY_2.getBytes());
   }
 
-  public String decrypt(String stringToDecrypt) {
+  public String decryptString(String stringToDecrypt) {
     return formatPreservingEncryption.decrypt(stringToDecrypt, KEY_2.getBytes());
   }
 
@@ -58,11 +82,9 @@ public class FPE_Impl {
         field.setAccessible(true);
         if (field.isAnnotationPresent(DataCrypt.class)) {
           DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-          if ((dataCryptInstance.dataType().equals(DataCrypt.DataType.FIRST_NAME)) ||
-              (dataCryptInstance.dataType().equals(DataCrypt.DataType.LAST_NAME)) ||
-              (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING))) {
+          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
             if (field.getType().equals(String.class)) {
-              field.set(classToCrypt, encrypt(field.get(classToCrypt).toString()));
+              field.set(classToCrypt, encryptString(field.get(classToCrypt).toString()));
             }
           }
         }
@@ -77,11 +99,9 @@ public class FPE_Impl {
         field.setAccessible(true);
         if (field.isAnnotationPresent(DataCrypt.class)) {
           DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-          if ((dataCryptInstance.dataType().equals(DataCrypt.DataType.FIRST_NAME)) ||
-              (dataCryptInstance.dataType().equals(DataCrypt.DataType.LAST_NAME)) ||
-              (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING))) {
+          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
             if (field.getType().equals(String.class)) {
-              field.set(classToCrypt, decrypt(field.get(classToCrypt).toString()));
+              field.set(classToCrypt, decryptString(field.get(classToCrypt).toString()));
             }
           }
         }

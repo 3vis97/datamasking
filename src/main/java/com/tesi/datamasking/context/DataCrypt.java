@@ -6,12 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.FIELD })
+@Target(ElementType.FIELD)
 public @interface DataCrypt {
 
-  public DataType dataType() default DataType.DEFAULT_STRING;
+  public DataType dataType() default DataType.DEFAULT_UNICODE;
 
   public enum DataType {
-    FIRST_NAME, LAST_NAME, PHONE, EMAIL, AMOUNT, DEFAULT_STRING
+    PHONE, EMAIL, AMOUNT, DEFAULT_UNICODE
   }
 }

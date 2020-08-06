@@ -29,7 +29,7 @@ class EncryptDecryptTest {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3plofmv";
 
-      String secret = "this is a phrase to be encrypt";
+      String secret = "this is a phrase to be encryptString";
 
       EncryptDecrypt encryptDecrypt = new EncryptDecrypt(key1, key2);
       String secretEncrypted = encryptDecrypt.encrypt(secret);

@@ -16,10 +16,10 @@ public class Customer {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Integer customerId;
 
-  @DataCrypt(dataType = DataCrypt.DataType.FIRST_NAME)
+  @DataCrypt
   public String firstName;
 
-  @DataCrypt(dataType = DataCrypt.DataType.LAST_NAME)
+  @DataCrypt
   public String lastName;
 
   public String phone;

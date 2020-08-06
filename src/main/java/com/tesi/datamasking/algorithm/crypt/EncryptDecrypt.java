@@ -29,7 +29,7 @@ public class EncryptDecrypt {
   /**
    * Encrypt the string with this internal algorithm.
    *
-   * @param toBeEncrypt string object to be encrypt.
+   * @param toBeEncrypt string object to be encryptString.
    * @return returns encrypted string.
    * @throws InvalidAlgorithmParameterException
    * @throws InvalidKeyException
@@ -45,9 +45,9 @@ public class EncryptDecrypt {
 
   /**
    * Decrypt this string with the internal algorithm. The passed argument should be encrypted using
-   * {@link #encrypt(String) encrypt} method of this class.
+   * {@link #encrypt(String) encryptString} method of this class.
    *
-   * @param encrypted encrypted string that was encrypted using {@link #encrypt(String) encrypt} method.
+   * @param encrypted encrypted string that was encrypted using {@link #encrypt(String) encryptString} method.
    * @return decrypted string.
    * @throws InvalidAlgorithmParameterException
    * @throws InvalidKeyException

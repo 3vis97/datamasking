@@ -1,4 +1,4 @@
-package com.tesi.datamasking.algorithm.fpe.customAlphabet;
+package com.tesi.datamasking.algorithm.fpe.custom;
 
 import com.idealista.fpe.config.Alphabet;
 
