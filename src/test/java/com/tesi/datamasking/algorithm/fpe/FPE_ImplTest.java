@@ -72,6 +72,21 @@ class FPE_ImplTest {
       Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
     }
 
+    @Test
+    public void check_decryption_with_email() {
+      String key1 = "12Cd#94qpz!%4/(0";
+      String key2 = "353fwafwg3ad21414";
+
+      String secret = "massimo.longobardo@gmail.com";
+
+      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      fpe.useEmailChars();
+      String secretEncrypted = fpe.encryptEmail(secret);
+      String secretDecrypted = fpe.decryptEmail(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
+    }
+
   }
 
 }

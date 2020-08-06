@@ -24,6 +24,7 @@ public class Customer {
 
   public String phone;
 
+  @DataCrypt(dataType = DataCrypt.DataType.EMAIL)
   public String email;
 
   public String street;

@@ -4,10 +4,13 @@ import com.idealista.fpe.FormatPreservingEncryption;
 import com.idealista.fpe.builder.FormatPreservingEncryptionBuilder;
 import com.idealista.fpe.config.GenericDomain;
 import com.idealista.fpe.config.GenericTransformations;
-import com.tesi.datamasking.algorithm.fpe.custom.AllChars;
+import com.tesi.datamasking.algorithm.fpe.custom.AlphaNumericChar;
 import com.tesi.datamasking.algorithm.fpe.custom.CustomAlphabet;
+import com.tesi.datamasking.algorithm.fpe.custom.EmailChars;
+import com.tesi.datamasking.algorithm.fpe.custom.EnumChars;
 import com.tesi.datamasking.algorithm.fpe.custom.UnicodeChars;
 import com.tesi.datamasking.context.DataCrypt;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -16,6 +19,7 @@ public class FPE_Impl {
 
   private final String KEY_1;
   private final String KEY_2;
+  private EnumChars enumChars;
 
   private FormatPreservingEncryption formatPreservingEncryption;
 
@@ -32,6 +36,7 @@ public class FPE_Impl {
         .withDefaultPseudoRandomFunction(KEY_1.getBytes())
         .withDefaultLengthRange()
         .build();
+    enumChars = EnumChars.DEFAULT;
   }
 
   public void useCustomAlphabet() {
@@ -42,17 +47,31 @@ public class FPE_Impl {
         .withDefaultPseudoRandomFunction(KEY_1.getBytes())
         .withDefaultLengthRange()
         .build();
+    enumChars = EnumChars.CUSTOM;
   }
 
-  public void useAlphaNumeric() {
-    AllChars allChars = new AllChars();
+  public void useAlphaNumericChars() {
+    AlphaNumericChar alphaNumericChar = new AlphaNumericChar();
     formatPreservingEncryption = FormatPreservingEncryptionBuilder
         .ff1Implementation()
-        .withDomain(new GenericDomain(
-            allChars, new GenericTransformations(allChars.availableCharacters()), new GenericTransformations(allChars.availableCharacters())))
+        .withDomain(new GenericDomain(alphaNumericChar, new GenericTransformations(alphaNumericChar.availableCharacters()), new GenericTransformations(alphaNumericChar.availableCharacters())))
         .withDefaultPseudoRandomFunction(KEY_1.getBytes())
         .withDefaultLengthRange()
         .build();
+    enumChars = EnumChars.CUSTOM;
+  }
+
+  public void useEmailChars() {
+    EmailChars emailChars = new EmailChars();
+    formatPreservingEncryption = FormatPreservingEncryptionBuilder
+        .ff1Implementation()
+        .withDomain(new GenericDomain(
+            emailChars, new GenericTransformations(emailChars.availableCharacters()), new GenericTransformations(
+            emailChars.availableCharacters())))
+        .withDefaultPseudoRandomFunction(KEY_1.getBytes())
+        .withDefaultLengthRange()
+        .build();
+    enumChars = EnumChars.EMAIL;
   }
 
   public void useUnicodeChar() {
@@ -64,6 +83,7 @@ public class FPE_Impl {
         .withDefaultPseudoRandomFunction(KEY_1.getBytes())
         .withDefaultLengthRange()
         .build();
+    enumChars = EnumChars.UNICODE;
   }
 
   public String encryptString(String stringToEncrypt) {
@@ -72,6 +92,38 @@ public class FPE_Impl {
 
   public String decryptString(String stringToDecrypt) {
     return formatPreservingEncryption.decrypt(stringToDecrypt, KEY_2.getBytes());
+  }
+
+  public String encryptEmail(String emailToEncrypt) {
+    String localPart = emailToEncrypt.split("@")[0];
+    String domainPart = emailToEncrypt.split("@")[1];
+
+    return encryptPart(localPart) + "@" + encryptPart(domainPart);
+  }
+
+  private String encryptPart(String totalPart) {
+    String result = "";
+    String[] subPart = totalPart.split("\\.");
+    for (String part : subPart) {
+      result += encryptString(part) + ".";
+    }
+    return StringUtils.chop(result);
+  }
+
+  public String decryptEmail(String emailToDecrypt) {
+    String localPart = emailToDecrypt.split("@")[0];
+    String domainPart = emailToDecrypt.split("@")[1];
+
+    return decryptPart(localPart) + "@" + decryptPart(domainPart);
+  }
+
+  private String decryptPart(String totalPart) {
+    String result = "";
+    String[] subPart = totalPart.split("\\.");
+    for (String part : subPart) {
+      result += decryptString(part) + ".";
+    }
+    return StringUtils.chop(result);
   }
 
 
@@ -84,7 +136,16 @@ public class FPE_Impl {
           DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
           if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
             if (field.getType().equals(String.class)) {
+              if (!enumChars.equals(EnumChars.CUSTOM))
+                useCustomAlphabet();
               field.set(classToCrypt, encryptString(field.get(classToCrypt).toString()));
+            }
+          }
+          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.EMAIL)) {
+            if (field.getType().equals(String.class)) {
+              if (!enumChars.equals(EnumChars.EMAIL))
+                useEmailChars();
+              field.set(classToCrypt, encryptEmail(field.get(classToCrypt).toString()));
             }
           }
         }
@@ -101,7 +162,16 @@ public class FPE_Impl {
           DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
           if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
             if (field.getType().equals(String.class)) {
+              if (!enumChars.equals(EnumChars.CUSTOM))
+                useCustomAlphabet();
               field.set(classToCrypt, decryptString(field.get(classToCrypt).toString()));
+            }
+          }
+          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.EMAIL)) {
+            if (field.getType().equals(String.class)) {
+              if (!enumChars.equals(EnumChars.EMAIL))
+                useEmailChars();
+              field.set(classToCrypt, decryptEmail(field.get(classToCrypt).toString()));
             }
           }
         }
