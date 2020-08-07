@@ -176,8 +176,8 @@ public class FPE_Impl {
             if (field.getType().equals(Integer.class)) {
               if (!enumChar.equals(EnumChar.NUMBER))
                 useNumericCharset();
+              field.set(classToCrypt, encryptInt((Integer) field.get(classToCrypt)));
             }
-            field.set(classToCrypt, decryptInt((Integer) field.get(classToCrypt)));
           }
         }
       }
@@ -209,8 +209,8 @@ public class FPE_Impl {
             if (field.getType().equals(Integer.class)) {
               if (!enumChar.equals(EnumChar.NUMBER))
                 useNumericCharset();
+              field.set(classToDecrypt, decryptInt((Integer) field.get(classToDecrypt)));
             }
-            field.set(classToDecrypt, decryptInt((Integer) field.get(classToDecrypt)));
           }
         }
       }
