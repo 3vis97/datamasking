@@ -137,7 +137,7 @@ public class CustomerController {
     customer.city = faker.address().city();
     customer.state = faker.address().state();
     customer.street = faker.address().streetAddress();
-    customer.email = faker.internet().emailAddress();
+    customer.email = faker.internet().emailAddress().replace(" ","");
     customer.phone = faker.phoneNumber().phoneNumber();
     customer.zipCode = faker.address().zipCode();
 
