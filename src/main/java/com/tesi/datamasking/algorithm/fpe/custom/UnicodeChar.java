@@ -2,10 +2,10 @@ package com.tesi.datamasking.algorithm.fpe.custom;
 
 import com.idealista.fpe.config.Alphabet;
 
-public class UnicodeChars implements Alphabet {
+public class UnicodeChar implements Alphabet {
   private static char[] CHARS = new char[65536];
 
-  public UnicodeChars() {
+  public UnicodeChar() {
     initialize();
   }
 

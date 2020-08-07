@@ -35,7 +35,7 @@ class FPE_ImplTest {
       String secret = "LAST day of JUNE";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
-      fpe.useCustomAlphabet();
+      fpe.useCustomCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
 
@@ -50,7 +50,7 @@ class FPE_ImplTest {
       String secret = "aaaaaa";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
-      fpe.useCustomAlphabet();
+      fpe.useCustomCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
 
@@ -65,7 +65,7 @@ class FPE_ImplTest {
       String secret = "a13caBAZè{#@";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
-      fpe.useUnicodeChar();
+      fpe.useUnicodeCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
 
@@ -80,9 +80,24 @@ class FPE_ImplTest {
       String secret = "massimo.longobardo@gmail.com";
 
       FPE_Impl fpe = new FPE_Impl(key1, key2);
-      fpe.useEmailChars();
+      fpe.useEmailCharset();
       String secretEncrypted = fpe.encryptEmail(secret);
       String secretDecrypted = fpe.decryptEmail(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
+    }
+
+    @Test
+    public void check_decryption_with_number() {
+      String key1 = "12Cd#94qpz!%4/(0";
+      String key2 = "353fwafwg3ad21414";
+
+      String secret = "123456789";
+
+      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      fpe.useNumericCharset();
+      String secretEncrypted = fpe.encryptString(secret);
+      String secretDecrypted = fpe.decryptString(secretEncrypted);
 
       Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
     }

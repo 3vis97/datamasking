@@ -33,5 +33,6 @@ public class Customer {
 
   public String state;
 
+  @DataCrypt(dataType = DataCrypt.DataType.NUMBER)
   public String zipCode;
 }

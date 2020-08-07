@@ -4,6 +4,7 @@ public class GenericRestResponse {
 
   public boolean success = true;
   public String error;
+  public String details;
 
   public GenericRestResponse() {
   }
