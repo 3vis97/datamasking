@@ -119,10 +119,7 @@ public class FPE_Impl {
   }
 
   public String encryptEmail(String emailToEncrypt) {
-    String localPart = emailToEncrypt.split("@")[0];
-    String domainPart = emailToEncrypt.split("@")[1];
-
-    return encryptPart(localPart) + "@" + encryptPart(domainPart);
+    return encryptPart(emailToEncrypt.split("@")[0]) + "@" + encryptPart(emailToEncrypt.split("@")[1]);
   }
 
   private String encryptPart(String totalPart) {
@@ -135,10 +132,7 @@ public class FPE_Impl {
   }
 
   public String decryptEmail(String emailToDecrypt) {
-    String localPart = emailToDecrypt.split("@")[0];
-    String domainPart = emailToDecrypt.split("@")[1];
-
-    return decryptPart(localPart) + "@" + decryptPart(domainPart);
+    return decryptPart(emailToDecrypt.split("@")[0]) + "@" + decryptPart(emailToDecrypt.split("@")[1]);
   }
 
   private String decryptPart(String totalPart) {
