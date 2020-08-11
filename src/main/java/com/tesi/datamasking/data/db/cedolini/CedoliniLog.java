@@ -8,6 +8,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name="cedolini_log")
@@ -42,6 +43,8 @@ public class CedoliniLog {
   public Integer mese;
 
   public Integer anno;
+
+  public BigDecimal importo;
 
   @ManyToOne
   private Dipendenti dipendente;

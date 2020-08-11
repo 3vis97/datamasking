@@ -1,10 +1,9 @@
 package com.tesi.datamasking.data.web.customer;
 
-import com.github.javafaker.Faker;
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.algorithm.fpe.FPE_Impl;
+import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
-import com.tesi.datamasking.data.db.dipendenti.DipendentiRepository;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 @RestController
 public class CustomerController {
 
-  private final DipendentiRepository repository;
+  private final DataMaskingFacade dataMaskingFacade;
 
   @Value("${secret.key.one}")
   private String KEY_1;
@@ -34,13 +32,13 @@ public class CustomerController {
   private String KEY_2;
 
   @Autowired
-  public CustomerController (DipendentiRepository customerRepository) {
-    this.repository = customerRepository;
+  public CustomerController (DataMaskingFacade dataMaskingFacade) {
+    this.dataMaskingFacade = dataMaskingFacade;
   }
 
   @GetMapping("dataMasking/customer")
   List<Dipendenti> all() {
-    return repository.findAll();
+    return dataMaskingFacade.getAllDipendenti();
   }
 
   @DeleteMapping("dataMasking/customer")
@@ -48,11 +46,9 @@ public class CustomerController {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      repository.deleteAll();
+      dataMaskingFacade.deleteAllDipendenti();
       stopwatch.stop();
-      long sec = stopwatch.elapsed(TimeUnit.SECONDS);
-      restResponse.success = true;
-      restResponse.details = MessageFormat.format("Delete completed in {0} seconds", sec);
+      restResponse.details = MessageFormat.format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -66,7 +62,7 @@ public class CustomerController {
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       for (int i=0; i < Integer.parseInt(records); i++) {
-        repository.save(generateRandomCustomer());
+        //dataMaskingFacade.saveDipendente(generateRandomCustomer());
       }
       stopwatch.stop();
       long sec = stopwatch.elapsed(TimeUnit.SECONDS);
@@ -84,12 +80,12 @@ public class CustomerController {
     GenericRestResponse restResponse = new GenericRestResponse();
 
     try {
-      List<Dipendenti> allCustomers = repository.findAll();
+      List<Dipendenti> allCustomers = dataMaskingFacade.getAllDipendenti();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
       for (Dipendenti customer : allCustomers) {
         fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
-        repository.save(customer);
+        //repository.save(customer);
       }
       stopwatch.stop();
       long sec = stopwatch.elapsed(TimeUnit.SECONDS);
@@ -108,13 +104,13 @@ public class CustomerController {
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
-      List<Dipendenti> allCustomers = repository.findAll();
+      //List<Dipendenti> allCustomers = repository.findAll();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
-      for (Dipendenti customer : allCustomers) {
-        fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
-        repository.save(customer);
-      }
+//      for (Dipendenti customer : allCustomers) {
+//        fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
+//        //repository.save(customer);
+//      }
       stopwatch.stop();
       long sec = stopwatch.elapsed(TimeUnit.SECONDS);
       restResponse.success = true;
@@ -128,20 +124,6 @@ public class CustomerController {
   }
 
 
-  private Dipendenti generateRandomCustomer() {
-    Faker faker = new Faker(new Locale("it"));
-    Dipendenti customer = new Dipendenti();
 
-    customer.nome = faker.name().firstName();
-    customer.cognome = faker.name().lastName();
-    customer.citta = faker.address().city();
-    customer.stato = faker.address().state();
-    customer.indirizzo = faker.address().streetAddress();
-    customer.email = faker.internet().emailAddress().replace(" ","");
-    customer.telefono = faker.phoneNumber().phoneNumber();
-    customer.cap = Integer.parseInt(faker.address().zipCode());
-
-    return customer;
-  }
 
 }

@@ -39,7 +39,7 @@ public class Dipendenti {
 
   public String citta;
 
-  public String stato;
+  public String regione;
 
   @DataCrypt(dataType = DataCrypt.DataType.NUMBER)
   public Integer cap;
