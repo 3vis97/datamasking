@@ -12,6 +12,6 @@ public @interface DataCrypt {
   public DataType dataType() default DataType.DEFAULT_UNICODE;
 
   public enum DataType {
-    PHONE, EMAIL, AMOUNT, DEFAULT_UNICODE, NUMBER
+    EMAIL, AMOUNT, DEFAULT_UNICODE, NUMBER
   }
 }

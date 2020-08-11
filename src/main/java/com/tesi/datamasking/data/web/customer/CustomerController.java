@@ -3,8 +3,8 @@ package com.tesi.datamasking.data.web.customer;
 import com.github.javafaker.Faker;
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.algorithm.fpe.FPE_Impl;
-import com.tesi.datamasking.data.db.customer.Customer;
-import com.tesi.datamasking.data.db.customer.CustomerRepository;
+import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
+import com.tesi.datamasking.data.db.dipendenti.DipendentiRepository;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 @RestController
 public class CustomerController {
 
-  private final CustomerRepository repository;
+  private final DipendentiRepository repository;
 
   @Value("${secret.key.one}")
   private String KEY_1;
@@ -34,12 +34,12 @@ public class CustomerController {
   private String KEY_2;
 
   @Autowired
-  public CustomerController (CustomerRepository customerRepository) {
+  public CustomerController (DipendentiRepository customerRepository) {
     this.repository = customerRepository;
   }
 
   @GetMapping("dataMasking/customer")
-  List<Customer> all() {
+  List<Dipendenti> all() {
     return repository.findAll();
   }
 
@@ -84,10 +84,10 @@ public class CustomerController {
     GenericRestResponse restResponse = new GenericRestResponse();
 
     try {
-      List<Customer> allCustomers = repository.findAll();
+      List<Dipendenti> allCustomers = repository.findAll();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
-      for (Customer customer : allCustomers) {
+      for (Dipendenti customer : allCustomers) {
         fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
         repository.save(customer);
       }
@@ -108,10 +108,10 @@ public class CustomerController {
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
-      List<Customer> allCustomers = repository.findAll();
+      List<Dipendenti> allCustomers = repository.findAll();
       FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
-      for (Customer customer : allCustomers) {
+      for (Dipendenti customer : allCustomers) {
         fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
         repository.save(customer);
       }
@@ -128,18 +128,18 @@ public class CustomerController {
   }
 
 
-  private Customer generateRandomCustomer() {
+  private Dipendenti generateRandomCustomer() {
     Faker faker = new Faker(new Locale("it"));
-    Customer customer = new Customer();
+    Dipendenti customer = new Dipendenti();
 
-    customer.firstName = faker.name().firstName();
-    customer.lastName = faker.name().lastName();
-    customer.city = faker.address().city();
-    customer.state = faker.address().state();
-    customer.street = faker.address().streetAddress();
+    customer.nome = faker.name().firstName();
+    customer.cognome = faker.name().lastName();
+    customer.citta = faker.address().city();
+    customer.stato = faker.address().state();
+    customer.indirizzo = faker.address().streetAddress();
     customer.email = faker.internet().emailAddress().replace(" ","");
-    customer.phone = faker.phoneNumber().phoneNumber();
-    customer.zipCode = faker.address().zipCode();
+    customer.telefono = faker.phoneNumber().phoneNumber();
+    customer.cap = Integer.parseInt(faker.address().zipCode());
 
     return customer;
   }
