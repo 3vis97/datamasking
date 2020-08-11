@@ -1,15 +1,18 @@
 package com.tesi.datamasking.core;
 
 import com.github.javafaker.Faker;
+import com.tesi.datamasking.algorithm.fpe.FPE_Impl;
 import com.tesi.datamasking.data.db.cedolini.CedoliniLog;
 import com.tesi.datamasking.data.db.cedolini.CedoliniLogRepository;
 import com.tesi.datamasking.data.db.clienti.Clienti;
 import com.tesi.datamasking.data.db.clienti.ClientiRepository;
 import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
 import com.tesi.datamasking.data.db.dipendenti.DipendentiRepository;
+import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -20,15 +23,20 @@ public class DataMaskingFacade {
   private final ClientiRepository clientiRepository;
 
   @Autowired
-  public DataMaskingFacade(DipendentiRepository dipendentiRepository, CedoliniLogRepository cedoliniLogRepository,
+  public DataMaskingFacade(DipendentiRepository dipendentiRepository,
+      CedoliniLogRepository cedoliniLogRepository,
       ClientiRepository clientiRepository) {
     this.cedoliniLogRepository = cedoliniLogRepository;
-    this.dipendentiRepository =dipendentiRepository;
+    this.dipendentiRepository = dipendentiRepository;
     this.clientiRepository = clientiRepository;
   }
 
   public Dipendenti saveDipendente(Dipendenti dipendente) {
     return dipendentiRepository.save(dipendente);
+  }
+
+  public CedoliniLog saveCedolino(CedoliniLog cedolino) {
+    return cedoliniLogRepository.save(cedolino);
   }
 
   public Clienti saveCliente(Clienti cliente) {
@@ -43,15 +51,45 @@ public class DataMaskingFacade {
     dipendentiRepository.deleteAll();
   }
 
-  public void populateRandomData(long customers, long employees, long payslip) {
-      for (int i = 0; i < customers; i++) {
-        Clienti clienteSaved = saveCliente(generateRandomCliente());
-        Long idCliente = clienteSaved.id;
-        for (int j = 0; j < employees; j++) {
-          for (int z = 0; z < payslip; z++) {
+  public void cryptAllDipendenti(PseudonymizationSetup setup,
+      String KEY_1,
+      String KEY_2) throws IllegalAccessException {
+    List<Dipendenti> allCustomers = getAllDipendenti();
+    FPE_Impl fpe = new FPE_Impl(KEY_1, KEY_2);
+    for (Dipendenti customer : allCustomers) {
+      fpe.cryptClass(customer, Arrays.asList(setup.fields));
+      dipendentiRepository.save(customer);
+    }
+  }
 
+  public void decryptAllDipendenti(PseudonymizationSetup setup,
+      String KEY_1,
+      String KEY_2) throws IllegalAccessException {
+    List<Dipendenti> allCustomers = getAllDipendenti();
+    FPE_Impl fpe = new FPE_Impl(KEY_1, KEY_2);
+    for (Dipendenti customer : allCustomers) {
+      fpe.decryptClass(customer, Arrays.asList(setup.fields));
+      dipendentiRepository.save(customer);
+    }
+  }
+
+  public void populateRandomData(long customers,
+      long employees,
+      int payslip) {
+    for (int i = 0; i < customers; i++) {
+      Clienti clienteSaved = saveCliente(generateRandomCliente());
+      Long idAzienda = clienteSaved.id;
+      for (int j = 0; j < employees; j++) {
+        Dipendenti dipendenteSaved = saveDipendente(generateRandomDipendente(idAzienda));
+        Long idDipendente = dipendenteSaved.id;
+        EnumDipendente enumDipendente = EnumDipendente.randomDipendente();
+        for (int z = payslip; z >= 0; z--) {
+          for (int month = 1; month <= 12; month++) {
+            CedoliniLog cedolinoLog = saveCedolino(generateRandomCedolino(idDipendente, month, 2020 - z,
+                BigDecimal.valueOf(enumDipendente.getBaseAmount())));
           }
         }
+      }
       }
   }
 

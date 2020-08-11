@@ -1,7 +1,6 @@
 package com.tesi.datamasking.data.web.customer;
 
 import com.google.common.base.Stopwatch;
-import com.tesi.datamasking.algorithm.fpe.FPE_Impl;
 import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -32,7 +30,7 @@ public class CustomerController {
   private String KEY_2;
 
   @Autowired
-  public CustomerController (DataMaskingFacade dataMaskingFacade) {
+  public CustomerController(DataMaskingFacade dataMaskingFacade) {
     this.dataMaskingFacade = dataMaskingFacade;
   }
 
@@ -48,7 +46,8 @@ public class CustomerController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.deleteAllDipendenti();
       stopwatch.stop();
-      restResponse.details = MessageFormat.format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = MessageFormat
+          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -56,17 +55,17 @@ public class CustomerController {
     return restResponse;
   }
 
-  @PostMapping("dataMasking/customer/{records}")
-  GenericRestResponse populateData(@PathVariable String records) {
+  @PostMapping("dataMasking/{customers}/{employees}/{payslip}")
+  GenericRestResponse populateData(@PathVariable String customers,
+      @PathVariable String employees,
+      @PathVariable String payslip) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      for (int i=0; i < Integer.parseInt(records); i++) {
-        //dataMaskingFacade.saveDipendente(generateRandomCustomer());
-      }
+      dataMaskingFacade
+          .populateRandomData(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
       stopwatch.stop();
-      long sec = stopwatch.elapsed(TimeUnit.SECONDS);
-      restResponse.details = MessageFormat.format("All {0} inserts completed in {1} seconds.", records, sec);
+
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -80,19 +79,12 @@ public class CustomerController {
     GenericRestResponse restResponse = new GenericRestResponse();
 
     try {
-      List<Dipendenti> allCustomers = dataMaskingFacade.getAllDipendenti();
-      FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
-      for (Dipendenti customer : allCustomers) {
-        fpe.cryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
-        //repository.save(customer);
-      }
+      dataMaskingFacade.cryptAllDipendenti(pseudonymizationSetup, KEY_1, KEY_2);
       stopwatch.stop();
-      long sec = stopwatch.elapsed(TimeUnit.SECONDS);
-      restResponse.success = true;
-      restResponse.details = "Crypt completed in " + sec + " seconds";
-    }
-    catch (Exception e) {
+      restResponse.details = MessageFormat
+          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
     }
@@ -104,26 +96,15 @@ public class CustomerController {
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
-      //List<Dipendenti> allCustomers = repository.findAll();
-      FPE_Impl fpe = new FPE_Impl(KEY_1,KEY_2);
       Stopwatch stopwatch = Stopwatch.createStarted();
-//      for (Dipendenti customer : allCustomers) {
-//        fpe.decryptClass(customer, Arrays.asList(pseudonymizationSetup.fields));
-//        //repository.save(customer);
-//      }
+      dataMaskingFacade.decryptAllDipendenti(pseudonymizationSetup, KEY_1, KEY_2);
       stopwatch.stop();
-      long sec = stopwatch.elapsed(TimeUnit.SECONDS);
-      restResponse.success = true;
-      restResponse.details = "Decrypt completed in " + sec + " seconds";
-    }
-    catch (Exception e) {
+      restResponse.details = MessageFormat
+          .format("Decrypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
     }
     return restResponse;
   }
-
-
-
-
 }
