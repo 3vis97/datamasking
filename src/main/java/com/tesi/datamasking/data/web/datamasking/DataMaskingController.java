@@ -2,32 +2,22 @@ package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
-import com.tesi.datamasking.data.db.employees.Employees;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.text.MessageFormat;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
 public class DataMaskingController {
 
   private final DataMaskingFacade dataMaskingFacade;
-
-  @Value("${secret.key.one}")
-  private String KEY_1;
-
-  @Value("${secret.key.two}")
-  private String KEY_2;
 
   @Autowired
   public DataMaskingController(DataMaskingFacade dataMaskingFacade) {
@@ -50,11 +40,6 @@ public class DataMaskingController {
       restResponse.error = e.getMessage();
     }
     return restResponse;
-  }
-
-  @GetMapping("dataMasking/customer")
-  List<Employees> all() {
-    return dataMaskingFacade.getAllEmployees();
   }
 
   @DeleteMapping("dataMasking/customer")
@@ -93,14 +78,14 @@ public class DataMaskingController {
     return restResponse;
   }
 
-  @PostMapping("dataMasking/customer/cryptData")
-  GenericRestResponse cryptData(@RequestBody
+  @PostMapping("dataMasking/payslip/cryptAll")
+  GenericRestResponse cryptPayslipData(@RequestBody
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
 
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.cryptAllEmployees(pseudonymizationSetup, KEY_1, KEY_2);
+      dataMaskingFacade.cryptAllPayslips(pseudonymizationSetup);
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
@@ -111,13 +96,49 @@ public class DataMaskingController {
     return restResponse;
   }
 
-  @PostMapping("dataMasking/customer/decryptData")
-  GenericRestResponse decryptData(@RequestBody
+  @PostMapping("dataMasking/payslip/decryptAll")
+  GenericRestResponse decryptPayslipData(@RequestBody
+      PseudonymizationSetup pseudonymizationSetup) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.decryptAllPayslips(pseudonymizationSetup);
+      stopwatch.stop();
+      restResponse.details = MessageFormat
+          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/employee/cryptAll")
+  GenericRestResponse cryptEmployeeData(@RequestBody
+      PseudonymizationSetup pseudonymizationSetup) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.cryptAllEmployees(pseudonymizationSetup);
+      stopwatch.stop();
+      restResponse.details = MessageFormat
+          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/employee/decryptAll")
+  GenericRestResponse decryptEmployeeData(@RequestBody
       PseudonymizationSetup pseudonymizationSetup) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.decryptAllEmployees(pseudonymizationSetup, KEY_1, KEY_2);
+      dataMaskingFacade.decryptAllEmployees(pseudonymizationSetup);
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Decrypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));

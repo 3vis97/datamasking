@@ -9,9 +9,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface DataCrypt {
 
-  public DataType dataType() default DataType.DEFAULT_UNICODE;
+  DataType dataType() default DataType.DEFAULT_UNICODE;
 
-  public enum DataType {
-    EMAIL, AMOUNT, DEFAULT_UNICODE, NUMBER
+  enum DataType {
+    EMAIL, AMOUNT, DEFAULT_UNICODE, NUMBER, LONG_STRING
   }
 }

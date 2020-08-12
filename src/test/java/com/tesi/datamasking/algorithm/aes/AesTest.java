@@ -1,4 +1,4 @@
-package com.tesi.datamasking.algorithm.crypt;
+package com.tesi.datamasking.algorithm.aes;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -16,7 +16,7 @@ import java.security.NoSuchAlgorithmException;
 
 import static org.hamcrest.CoreMatchers.is;
 
-class EncryptDecryptTest {
+class AesTest {
 
   @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
   @Nested
@@ -31,9 +31,9 @@ class EncryptDecryptTest {
 
       String secret = "this is a phrase to be encryptString";
 
-      EncryptDecrypt encryptDecrypt = new EncryptDecrypt(key1, key2);
-      String secretEncrypted = encryptDecrypt.encrypt(secret);
-      String secretDecrypted = encryptDecrypt.decrypt(secretEncrypted);
+      Aes aes = new Aes(key1, key2);
+      String secretEncrypted = aes.encrypt(secret);
+      String secretDecrypted = aes.decrypt(secretEncrypted);
 
       Assert.assertThat(secretDecrypted, is(secret));
 

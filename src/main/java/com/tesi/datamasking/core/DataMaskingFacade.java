@@ -1,7 +1,7 @@
 package com.tesi.datamasking.core;
 
 import com.github.javafaker.Faker;
-import com.tesi.datamasking.algorithm.fpe.FPE_Impl;
+import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
 import com.tesi.datamasking.data.db.employees.Employees;
@@ -11,7 +11,11 @@ import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import java.math.BigDecimal;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,32 +25,39 @@ public class DataMaskingFacade {
   private final PayslipsRepository payslipsRepository;
   private final CustomersRepository customersRepository;
   private final Faker faker;
+  private final CryptDecrypt cryptDecrypt;
 
   @Autowired
   public DataMaskingFacade(EmployeesRepository employeesRepository,
       PayslipsRepository payslipsRepository,
       CustomersRepository customersRepository,
-      Faker faker) {
+      Faker faker,
+      CryptDecrypt cryptDecrypt) {
     this.payslipsRepository = payslipsRepository;
     this.employeesRepository = employeesRepository;
     this.customersRepository = customersRepository;
     this.faker = faker;
+    this.cryptDecrypt = cryptDecrypt;
   }
 
-  public Employees saveEmployee(Employees employee) {
+  private Employees saveEmployee(Employees employee) {
     return employeesRepository.save(employee);
   }
 
-  public Payslips savePayslip(Payslips payslips) {
+  private Payslips savePayslip(Payslips payslips) {
     return payslipsRepository.save(payslips);
   }
 
-  public Customers saveCustomer(Customers customer) {
+  private Customers saveCustomer(Customers customer) {
     return customersRepository.save(customer);
   }
 
-  public List<Employees> getAllEmployees() {
+  private List<Employees> getAllEmployees() {
     return employeesRepository.findAll();
+  }
+
+  private List<Payslips> getAllPayslips() {
+    return payslipsRepository.findAll();
   }
 
   public void deleteAllEmployees() {
@@ -61,25 +72,43 @@ public class DataMaskingFacade {
     customersRepository.deleteAll();
   }
 
-  public void cryptAllEmployees(PseudonymizationSetup setup,
-      String KEY_1,
-      String KEY_2) throws IllegalAccessException {
-    List<Employees> allCustomers = getAllEmployees();
-    FPE_Impl fpe = new FPE_Impl(KEY_1, KEY_2);
-    for (Employees customer : allCustomers) {
-      fpe.cryptClass(customer, Arrays.asList(setup.fields));
-      employeesRepository.save(customer);
+  public void cryptAllEmployees(PseudonymizationSetup setup)
+      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException {
+    List<Employees> allEmployees = getAllEmployees();
+    for (Employees employee : allEmployees) {
+      cryptDecrypt.cryptClass(employee, Arrays.asList(setup.fields));
+      employeesRepository.save(employee);
     }
   }
 
-  public void decryptAllEmployees(PseudonymizationSetup setup,
-      String KEY_1,
-      String KEY_2) throws IllegalAccessException {
-    List<Employees> allCustomers = getAllEmployees();
-    FPE_Impl fpe = new FPE_Impl(KEY_1, KEY_2);
-    for (Employees customer : allCustomers) {
-      fpe.decryptClass(customer, Arrays.asList(setup.fields));
-      employeesRepository.save(customer);
+  public void decryptAllEmployees(PseudonymizationSetup setup)
+      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException {
+    List<Employees> allEmployees = getAllEmployees();
+    for (Employees employee : allEmployees) {
+      cryptDecrypt.decryptClass(employee, Arrays.asList(setup.fields));
+      employeesRepository.save(employee);
+    }
+  }
+
+  public void cryptAllPayslips(PseudonymizationSetup setup)
+      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException {
+    List<Payslips> allPayslips = getAllPayslips();
+    for (Payslips payslip : allPayslips) {
+      cryptDecrypt.cryptClass(payslip, Arrays.asList(setup.fields));
+      payslipsRepository.save(payslip);
+    }
+  }
+
+  public void decryptAllPayslips(PseudonymizationSetup setup)
+      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException {
+    List<Payslips> allPayslips = getAllPayslips();
+    for (Payslips payslip : allPayslips) {
+      cryptDecrypt.decryptClass(payslip, Arrays.asList(setup.fields));
+      payslipsRepository.save(payslip);
     }
   }
 

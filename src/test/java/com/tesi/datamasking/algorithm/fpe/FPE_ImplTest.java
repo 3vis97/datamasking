@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import static org.hamcrest.Matchers.equalTo;
+
 class FPE_ImplTest {
 
   @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -20,11 +22,11 @@ class FPE_ImplTest {
 
       String secret = "abcaefoza";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
 
-      Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
+      Assert.assertThat(secretDecrypted, equalTo(secret));
     }
 
     @Test
@@ -34,7 +36,7 @@ class FPE_ImplTest {
 
       String secret = "LAST day of JUNE";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       fpe.useCustomCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
@@ -49,7 +51,7 @@ class FPE_ImplTest {
 
       String secret = "aaaaaa";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       fpe.useCustomCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
@@ -64,7 +66,7 @@ class FPE_ImplTest {
 
       String secret = "a13caBAZè{#@";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       fpe.useUnicodeCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);
@@ -79,7 +81,7 @@ class FPE_ImplTest {
 
       String secret = "massimo.longobardo@gmail.com";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       fpe.useEmailCharset();
       String secretEncrypted = fpe.encryptEmail(secret);
       String secretDecrypted = fpe.decryptEmail(secretEncrypted);
@@ -94,7 +96,7 @@ class FPE_ImplTest {
 
       String secret = "123456789";
 
-      FPE_Impl fpe = new FPE_Impl(key1, key2);
+      FPE fpe = new FPE(key1, key2);
       fpe.useNumericCharset();
       String secretEncrypted = fpe.encryptString(secret);
       String secretDecrypted = fpe.decryptString(secretEncrypted);

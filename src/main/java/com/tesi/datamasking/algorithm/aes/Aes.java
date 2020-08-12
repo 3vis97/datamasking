@@ -1,4 +1,4 @@
-package com.tesi.datamasking.algorithm.crypt;
+package com.tesi.datamasking.algorithm.aes;
 
 import org.apache.tomcat.util.codec.binary.Base64;
 
@@ -13,13 +13,14 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class EncryptDecrypt {
+public class Aes {
 
   private IvParameterSpec ivParameterSpec;
   private SecretKeySpec secretKeySpec;
   private Cipher cipher;
 
-  public EncryptDecrypt(String SECRET_KEY_1, String SECRET_KEY_2) throws UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
+  public Aes(String SECRET_KEY_1,
+      String SECRET_KEY_2) throws UnsupportedEncodingException, NoSuchPaddingException, NoSuchAlgorithmException {
     ivParameterSpec = new IvParameterSpec(SECRET_KEY_1.getBytes("UTF-8"));
     secretKeySpec = new SecretKeySpec(SECRET_KEY_2.getBytes("UTF-8"), "AES");
     cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");

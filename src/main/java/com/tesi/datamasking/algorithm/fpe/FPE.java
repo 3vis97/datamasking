@@ -10,13 +10,11 @@ import com.tesi.datamasking.algorithm.fpe.custom.EmailChar;
 import com.tesi.datamasking.algorithm.fpe.custom.EnumChar;
 import com.tesi.datamasking.algorithm.fpe.custom.NumericChar;
 import com.tesi.datamasking.algorithm.fpe.custom.UnicodeChar;
-import com.tesi.datamasking.context.DataCrypt;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Field;
-import java.util.List;
+import java.math.BigDecimal;
 
-public class FPE_Impl {
+public class FPE {
 
   private final String KEY_1;
   private final String KEY_2;
@@ -24,7 +22,8 @@ public class FPE_Impl {
 
   private FormatPreservingEncryption formatPreservingEncryption;
 
-  public FPE_Impl(String KEY_1, String KEY_2){
+  public FPE(String KEY_1,
+      String KEY_2) {
     this.KEY_1 = KEY_1;
     this.KEY_2 = KEY_2;
     useDefault();
@@ -114,12 +113,28 @@ public class FPE_Impl {
     return Integer.valueOf(formatPreservingEncryption.encrypt(integer.toString(), KEY_2.getBytes()));
   }
 
-  public Integer decryptInt(Integer integer){
+  public Integer decryptInt(Integer integer) {
     return Integer.valueOf(formatPreservingEncryption.decrypt(integer.toString(), KEY_2.getBytes()));
   }
 
   public String encryptEmail(String emailToEncrypt) {
     return encryptPart(emailToEncrypt.split("@")[0]) + "@" + encryptPart(emailToEncrypt.split("@")[1]);
+  }
+
+  public String decryptEmail(String emailToDecrypt) {
+    return decryptPart(emailToDecrypt.split("@")[0]) + "@" + decryptPart(emailToDecrypt.split("@")[1]);
+  }
+
+  public BigDecimal encryptAmount(BigDecimal value) {
+    String doubleAsString = String.valueOf(value);
+    return new BigDecimal(encryptInt(Integer.valueOf(doubleAsString.split("\\.")[0])) + "." +
+        encryptInt(Integer.valueOf(doubleAsString.split("\\.")[1])));
+  }
+
+  public BigDecimal decryptAmount(BigDecimal value) {
+    String doubleAsString = String.valueOf(value);
+    return new BigDecimal(decryptInt(Integer.valueOf(doubleAsString.split("\\.")[0])) + "." +
+        decryptInt(Integer.valueOf(doubleAsString.split("\\.")[1])));
   }
 
   private String encryptPart(String totalPart) {
@@ -131,10 +146,6 @@ public class FPE_Impl {
     return StringUtils.chop(result);
   }
 
-  public String decryptEmail(String emailToDecrypt) {
-    return decryptPart(emailToDecrypt.split("@")[0]) + "@" + decryptPart(emailToDecrypt.split("@")[1]);
-  }
-
   private String decryptPart(String totalPart) {
     String result = "";
     String[] subPart = totalPart.split("\\.");
@@ -144,72 +155,7 @@ public class FPE_Impl {
     return StringUtils.chop(result);
   }
 
-
-  public void cryptClass(Object classToCrypt, List<String> fieldsToCrypt) throws IllegalAccessException {
-    Field[] classFields = classToCrypt.getClass().getFields();
-    for (Field field : classFields) {
-      if (fieldsToCrypt.contains(field.getName())) {
-        field.setAccessible(true);
-        if (field.isAnnotationPresent(DataCrypt.class)) {
-          DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
-            if (field.getType().equals(String.class)) {
-              if (!enumChar.equals(EnumChar.CUSTOM))
-                useCustomCharset();
-              field.set(classToCrypt, encryptString(field.get(classToCrypt).toString()));
-            }
-          }
-          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.EMAIL)) {
-            if (field.getType().equals(String.class)) {
-              if (!enumChar.equals(EnumChar.EMAIL))
-                useEmailCharset();
-              field.set(classToCrypt, encryptEmail(field.get(classToCrypt).toString()));
-            }
-          }
-          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.NUMBER)) {
-            if (field.getType().equals(Integer.class)) {
-              if (!enumChar.equals(EnumChar.NUMBER))
-                useNumericCharset();
-              field.set(classToCrypt, encryptInt((Integer) field.get(classToCrypt)));
-            }
-          }
-        }
-      }
-    }
+  public EnumChar getEnumChar() {
+    return enumChar;
   }
-
-  public void decryptClass(Object classToDecrypt, List<String> fieldsToDecrypt) throws IllegalAccessException {
-    Field[] classFields = classToDecrypt.getClass().getFields();
-    for (Field field : classFields) {
-      if (fieldsToDecrypt.contains(field.getName())) {
-        field.setAccessible(true);
-        if (field.isAnnotationPresent(DataCrypt.class)) {
-          DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
-            if (field.getType().equals(String.class)) {
-              if (!enumChar.equals(EnumChar.CUSTOM))
-                useCustomCharset();
-              field.set(classToDecrypt, decryptString(field.get(classToDecrypt).toString()));
-            }
-          }
-          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.EMAIL)) {
-            if (field.getType().equals(String.class)) {
-              if (!enumChar.equals(EnumChar.EMAIL))
-                useEmailCharset();
-              field.set(classToDecrypt, decryptEmail(field.get(classToDecrypt).toString()));
-            }
-          }
-          else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.NUMBER)) {
-            if (field.getType().equals(Integer.class)) {
-              if (!enumChar.equals(EnumChar.NUMBER))
-                useNumericCharset();
-              field.set(classToDecrypt, decryptInt((Integer) field.get(classToDecrypt)));
-            }
-          }
-        }
-      }
-    }
-  }
-
-
 }
