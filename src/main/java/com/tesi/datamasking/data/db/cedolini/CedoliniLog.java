@@ -1,12 +1,9 @@
 package com.tesi.datamasking.data.db.cedolini;
 
-import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -46,8 +43,8 @@ public class CedoliniLog {
 
   public BigDecimal importo;
 
-  @ManyToOne
-  private Dipendenti dipendente;
-
+  //  @ManyToOne
+  //  @JoinColumn(name = "idDipendente", referencedColumnName = "id")
+  //  private Dipendenti dipendente;
 
 }

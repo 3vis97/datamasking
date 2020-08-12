@@ -14,21 +14,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class DataMaskingFacade {
 
   private final DipendentiRepository dipendentiRepository;
   private final CedoliniLogRepository cedoliniLogRepository;
   private final ClientiRepository clientiRepository;
+  private final Faker faker;
 
   @Autowired
   public DataMaskingFacade(DipendentiRepository dipendentiRepository,
       CedoliniLogRepository cedoliniLogRepository,
-      ClientiRepository clientiRepository) {
+      ClientiRepository clientiRepository,
+      Faker faker) {
     this.cedoliniLogRepository = cedoliniLogRepository;
     this.dipendentiRepository = dipendentiRepository;
     this.clientiRepository = clientiRepository;
+    this.faker = faker;
   }
 
   public Dipendenti saveDipendente(Dipendenti dipendente) {
@@ -80,7 +82,7 @@ public class DataMaskingFacade {
       Clienti clienteSaved = saveCliente(generateRandomCliente());
       Long idAzienda = clienteSaved.id;
       for (int j = 0; j < employees; j++) {
-        Dipendenti dipendenteSaved = saveDipendente(generateRandomDipendente(idAzienda));
+        Dipendenti dipendenteSaved = saveDipendente(generateRandomDipendente(clienteSaved));
         Long idDipendente = dipendenteSaved.id;
         EnumDipendente enumDipendente = EnumDipendente.randomDipendente();
         for (int z = payslip; z >= 0; z--) {
@@ -95,7 +97,6 @@ public class DataMaskingFacade {
 
 
   private CedoliniLog generateRandomCedolino(Long idDipendente, int mese, int anno, BigDecimal importo) {
-    Faker faker = new Faker(new Locale("it"));
     CedoliniLog cedolinoLog = new CedoliniLog();
     int min = 1;
     int max = 10;
@@ -141,11 +142,10 @@ public class DataMaskingFacade {
   }
 
   private Clienti generateRandomCliente() {
-    Faker faker = new Faker(new Locale("it"));
     Clienti cliente = new Clienti();
 
     cliente.ragioneSociale = faker.company().name();
-    cliente.cap = faker.address().zipCode();
+    cliente.cap = Integer.parseInt(faker.address().zipCode());
     cliente.citta = faker.address().city();
     cliente.indirizzo = faker.address().streetAddress();
     cliente.partitaIva = faker.numerify("###########");
@@ -156,17 +156,16 @@ public class DataMaskingFacade {
 
   }
 
-  private Dipendenti generateRandomDipendente(long idAzienda) {
-    Faker faker = new Faker(new Locale("it"));
+  private Dipendenti generateRandomDipendente(Clienti idAzienda) {
     Dipendenti dipendente = new Dipendenti();
 
-    dipendente.idAzienda = idAzienda;
+    dipendente.clienti = idAzienda;
     dipendente.nome = faker.name().firstName();
     dipendente.cognome = faker.name().lastName();
     dipendente.citta = faker.address().city();
     dipendente.regione = faker.address().state();
     dipendente.indirizzo = faker.address().streetAddress();
-    dipendente.email = faker.internet().emailAddress().replace(" ","");
+    dipendente.email = faker.internet().emailAddress().replace(" ", "");
     dipendente.telefono = faker.phoneNumber().cellPhone();
     dipendente.cap = Integer.parseInt(faker.address().zipCode());
 
