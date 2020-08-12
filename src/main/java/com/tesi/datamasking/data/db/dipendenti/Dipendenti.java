@@ -1,6 +1,7 @@
 package com.tesi.datamasking.data.db.dipendenti;
 
 import com.tesi.datamasking.context.DataCrypt;
+import com.tesi.datamasking.data.db.cedolini.CedoliniLog;
 import com.tesi.datamasking.data.db.clienti.Clienti;
 
 import javax.persistence.Entity;
@@ -9,7 +10,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.List;
 
 @Entity
 @Table(name = "dipendenti")
@@ -43,14 +46,14 @@ public class Dipendenti {
   @DataCrypt(dataType = DataCrypt.DataType.NUMBER)
   public Integer cap;
 
-  //  @OneToMany(mappedBy = "dipendente")
-  //  private List<CedoliniLog> cedoliniLogs;
-  //
-  //  public List<CedoliniLog> getCedoliniLogs() {
-  //    return cedoliniLogs;
-  //  }
-  //
-  //  public void setCedoliniLogs(List<CedoliniLog> cedoliniLogs) {
-  //    this.cedoliniLogs = cedoliniLogs;
-  //  }
+  @OneToMany(mappedBy = "dipendenti")
+  private List<CedoliniLog> cedoliniLogs;
+
+  public List<CedoliniLog> getCedoliniLogs() {
+    return cedoliniLogs;
+  }
+
+  public void setCedoliniLogs(List<CedoliniLog> cedoliniLogs) {
+    this.cedoliniLogs = cedoliniLogs;
+  }
 }

@@ -53,6 +53,14 @@ public class DataMaskingFacade {
     dipendentiRepository.deleteAll();
   }
 
+  public void deleteAllCedolini() {
+    cedoliniLogRepository.deleteAll();
+  }
+
+  public void deleteAllClienti() {
+    clientiRepository.deleteAll();
+  }
+
   public void cryptAllDipendenti(PseudonymizationSetup setup,
       String KEY_1,
       String KEY_2) throws IllegalAccessException {
@@ -80,30 +88,30 @@ public class DataMaskingFacade {
       int payslip) {
     for (int i = 0; i < customers; i++) {
       Clienti clienteSaved = saveCliente(generateRandomCliente());
-      Long idAzienda = clienteSaved.id;
       for (int j = 0; j < employees; j++) {
         Dipendenti dipendenteSaved = saveDipendente(generateRandomDipendente(clienteSaved));
-        Long idDipendente = dipendenteSaved.id;
         EnumDipendente enumDipendente = EnumDipendente.randomDipendente();
         for (int z = payslip; z >= 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            CedoliniLog cedolinoLog = saveCedolino(generateRandomCedolino(idDipendente, month, 2020 - z,
+            CedoliniLog cedolinoLog = saveCedolino(generateRandomCedolino(dipendenteSaved, month, 2020 - z,
                 BigDecimal.valueOf(enumDipendente.getBaseAmount())));
           }
         }
       }
-      }
+    }
   }
 
-
-  private CedoliniLog generateRandomCedolino(Long idDipendente, int mese, int anno, BigDecimal importo) {
+  private CedoliniLog generateRandomCedolino(Dipendenti dipendente,
+      int mese,
+      int anno,
+      BigDecimal importo) {
     CedoliniLog cedolinoLog = new CedoliniLog();
     int min = 1;
     int max = 10;
 
     cedolinoLog.anno = anno;
     cedolinoLog.mese = mese;
-    cedolinoLog.idDipendente = idDipendente;
+    cedolinoLog.dipendenti = dipendente;
     cedolinoLog.colonna1 = randomValue(faker, min, max);
     cedolinoLog.colonna2 = randomValue(faker, min, max);
     cedolinoLog.colonna3 = randomValue(faker, min, max);
@@ -156,10 +164,10 @@ public class DataMaskingFacade {
 
   }
 
-  private Dipendenti generateRandomDipendente(Clienti idAzienda) {
+  private Dipendenti generateRandomDipendente(Clienti cliente) {
     Dipendenti dipendente = new Dipendenti();
 
-    dipendente.clienti = idAzienda;
+    dipendente.clienti = cliente;
     dipendente.nome = faker.name().firstName();
     dipendente.cognome = faker.name().lastName();
     dipendente.citta = faker.address().city();

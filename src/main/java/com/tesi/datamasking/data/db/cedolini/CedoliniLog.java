@@ -1,21 +1,27 @@
 package com.tesi.datamasking.data.db.cedolini;
 
+import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name="cedolini_log")
+@Table(name = "cedolini_log")
 public class CedoliniLog {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   public Long id;
 
-  public Long idDipendente;
+  @ManyToOne
+  @JoinColumn(name = "idDipendente")
+  public Dipendenti dipendenti;
 
   public String colonna1;
 
@@ -42,9 +48,5 @@ public class CedoliniLog {
   public Integer anno;
 
   public BigDecimal importo;
-
-  //  @ManyToOne
-  //  @JoinColumn(name = "idDipendente", referencedColumnName = "id")
-  //  private Dipendenti dipendente;
 
 }

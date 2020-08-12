@@ -1,4 +1,4 @@
-package com.tesi.datamasking.data.web.customer;
+package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-public class CustomerController {
+public class DataMaskingController {
 
   private final DataMaskingFacade dataMaskingFacade;
 
@@ -30,7 +30,7 @@ public class CustomerController {
   private String KEY_2;
 
   @Autowired
-  public CustomerController(DataMaskingFacade dataMaskingFacade) {
+  public DataMaskingController(DataMaskingFacade dataMaskingFacade) {
     this.dataMaskingFacade = dataMaskingFacade;
   }
 
@@ -40,11 +40,29 @@ public class CustomerController {
   }
 
   @DeleteMapping("dataMasking/customer")
-  GenericRestResponse deleteAll() {
+  GenericRestResponse deleteAllCustomers() {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.deleteAllDipendenti();
+      stopwatch.stop();
+      restResponse.details = MessageFormat
+          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @DeleteMapping("dataMasking")
+  GenericRestResponse deleteAll() {
+    GenericRestResponse restResponse = new GenericRestResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.deleteAllCedolini();
+      dataMaskingFacade.deleteAllDipendenti();
+      dataMaskingFacade.deleteAllClienti();
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
