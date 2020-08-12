@@ -93,8 +93,7 @@ public class DataMaskingFacade {
         EnumDipendente enumDipendente = EnumDipendente.randomDipendente();
         for (int z = payslip; z >= 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            CedoliniLog cedolinoLog = saveCedolino(generateRandomCedolino(dipendenteSaved, month, 2020 - z,
-                BigDecimal.valueOf(enumDipendente.getBaseAmount())));
+            saveCedolino(generateRandomCedolino(dipendenteSaved, month, 2020 - z, enumDipendente));
           }
         }
       }
@@ -104,7 +103,7 @@ public class DataMaskingFacade {
   private CedoliniLog generateRandomCedolino(Dipendenti dipendente,
       int mese,
       int anno,
-      BigDecimal importo) {
+      EnumDipendente enumDipendente) {
     CedoliniLog cedolinoLog = new CedoliniLog();
     int min = 1;
     int max = 10;
@@ -122,7 +121,8 @@ public class DataMaskingFacade {
     cedolinoLog.colonna8 = randomValue(faker, min, max);
     cedolinoLog.colonna9 = randomValue(faker, min, max);
     cedolinoLog.colonna10 = randomValue(faker, min, max);
-    cedolinoLog.importo = importo;
+    cedolinoLog.importo = BigDecimal.valueOf(enumDipendente.getBaseAmount());
+    cedolinoLog.role = enumDipendente.name();
 
     return cedolinoLog;
 

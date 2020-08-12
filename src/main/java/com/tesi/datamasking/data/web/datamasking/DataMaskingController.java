@@ -34,6 +34,24 @@ public class DataMaskingController {
     this.dataMaskingFacade = dataMaskingFacade;
   }
 
+  @DeleteMapping("dataMasking")
+  GenericRestResponse deleteAll() {
+    GenericRestResponse restResponse = new GenericRestResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.deleteAllCedolini();
+      dataMaskingFacade.deleteAllDipendenti();
+      dataMaskingFacade.deleteAllClienti();
+      stopwatch.stop();
+      restResponse.details = MessageFormat
+          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
   @GetMapping("dataMasking/customer")
   List<Dipendenti> all() {
     return dataMaskingFacade.getAllDipendenti();
@@ -55,23 +73,6 @@ public class DataMaskingController {
     return restResponse;
   }
 
-  @DeleteMapping("dataMasking")
-  GenericRestResponse deleteAll() {
-    GenericRestResponse restResponse = new GenericRestResponse();
-    try {
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.deleteAllCedolini();
-      dataMaskingFacade.deleteAllDipendenti();
-      dataMaskingFacade.deleteAllClienti();
-      stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
-    } catch (Exception e) {
-      restResponse.success = false;
-      restResponse.error = e.getMessage();
-    }
-    return restResponse;
-  }
 
   @PostMapping("dataMasking/{customers}/{employees}/{payslip}")
   GenericRestResponse populateData(@PathVariable String customers,

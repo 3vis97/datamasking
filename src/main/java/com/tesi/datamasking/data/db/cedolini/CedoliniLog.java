@@ -49,4 +49,6 @@ public class CedoliniLog {
 
   public BigDecimal importo;
 
+  public String role;
+
 }
