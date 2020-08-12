@@ -2,7 +2,7 @@ package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
-import com.tesi.datamasking.data.db.dipendenti.Dipendenti;
+import com.tesi.datamasking.data.db.employees.Employees;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,9 +39,9 @@ public class DataMaskingController {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.deleteAllCedolini();
-      dataMaskingFacade.deleteAllDipendenti();
-      dataMaskingFacade.deleteAllClienti();
+      dataMaskingFacade.deleteAllPayslips();
+      dataMaskingFacade.deleteAllEmployees();
+      dataMaskingFacade.deleteAllCustomers();
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
@@ -53,8 +53,8 @@ public class DataMaskingController {
   }
 
   @GetMapping("dataMasking/customer")
-  List<Dipendenti> all() {
-    return dataMaskingFacade.getAllDipendenti();
+  List<Employees> all() {
+    return dataMaskingFacade.getAllEmployees();
   }
 
   @DeleteMapping("dataMasking/customer")
@@ -62,7 +62,7 @@ public class DataMaskingController {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.deleteAllDipendenti();
+      dataMaskingFacade.deleteAllEmployees();
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
@@ -72,7 +72,6 @@ public class DataMaskingController {
     }
     return restResponse;
   }
-
 
   @PostMapping("dataMasking/{customers}/{employees}/{payslip}")
   GenericRestResponse populateData(@PathVariable String customers,
@@ -101,7 +100,7 @@ public class DataMaskingController {
 
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.cryptAllDipendenti(pseudonymizationSetup, KEY_1, KEY_2);
+      dataMaskingFacade.cryptAllEmployees(pseudonymizationSetup, KEY_1, KEY_2);
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
@@ -118,7 +117,7 @@ public class DataMaskingController {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      dataMaskingFacade.decryptAllDipendenti(pseudonymizationSetup, KEY_1, KEY_2);
+      dataMaskingFacade.decryptAllEmployees(pseudonymizationSetup, KEY_1, KEY_2);
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Decrypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));

@@ -6,10 +6,11 @@ import java.util.List;
 import java.util.Random;
 
 
-public enum EnumDipendente {
+public enum EnumEmployeeJob {
   DIRIGENTE(3000.00, 4), IMPIEGATO(1500.00, 3), STAGISTA(600.00, 2), PART_TIME(900.00, 1);
 
-  EnumDipendente(double amount, int multiplier) {
+  EnumEmployeeJob(double amount,
+      int multiplier) {
     this.baseAmount = amount;
     this.multiplier = multiplier;
   }
@@ -17,12 +18,12 @@ public enum EnumDipendente {
   private double baseAmount;
   private int multiplier;
 
-  private static final List<EnumDipendente> VALUES =
+  private static final List<EnumEmployeeJob> VALUES =
       Collections.unmodifiableList(Arrays.asList(values()));
   private static final int SIZE = VALUES.size();
   private static final Random RANDOM = new Random();
 
-  public static EnumDipendente randomDipendente()  {
+  public static EnumEmployeeJob getRandomEmployeeJob() {
     return VALUES.get(RANDOM.nextInt(SIZE));
   }
 

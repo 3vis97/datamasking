@@ -2,9 +2,9 @@ package com.tesi.datamasking.config;
 
 import com.github.javafaker.Faker;
 import com.tesi.datamasking.core.DataMaskingFacade;
-import com.tesi.datamasking.data.db.cedolini.CedoliniLogRepository;
-import com.tesi.datamasking.data.db.clienti.ClientiRepository;
-import com.tesi.datamasking.data.db.dipendenti.DipendentiRepository;
+import com.tesi.datamasking.data.db.customers.CustomersRepository;
+import com.tesi.datamasking.data.db.employees.EmployeesRepository;
+import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,11 +14,11 @@ import java.util.Locale;
 public class DataMaskingRestConfig {
 
   @Bean
-  public DataMaskingFacade dataMaskingFacade(DipendentiRepository dipendentiRepository,
-      CedoliniLogRepository cedoliniLogRepository,
-      ClientiRepository clientiRepository,
+  public DataMaskingFacade dataMaskingFacade(EmployeesRepository employeesRepository,
+      PayslipsRepository payslipsRepository,
+      CustomersRepository customersRepository,
       Faker faker) {
-    return new DataMaskingFacade(dipendentiRepository, cedoliniLogRepository, clientiRepository, faker);
+    return new DataMaskingFacade(employeesRepository, payslipsRepository, customersRepository, faker);
   }
 
   @Bean
