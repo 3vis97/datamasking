@@ -28,8 +28,9 @@ public enum EnumDipendente {
 
   public double getBaseAmount() {
     double upper = multiplier * 50.00;
-    double lower = - multiplier * 50.00;
-    return baseAmount * (upper - lower) + lower;
+    double lower = -multiplier * 50.00;
+    double random = new Random().nextDouble();
+    return baseAmount + (random * (upper - lower)) + lower;
   }
 
 }

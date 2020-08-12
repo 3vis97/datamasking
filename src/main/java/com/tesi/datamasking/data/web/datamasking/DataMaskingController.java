@@ -84,6 +84,8 @@ public class DataMaskingController {
       dataMaskingFacade
           .populateRandomData(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
       stopwatch.stop();
+      restResponse.details = MessageFormat
+          .format("Populate completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
 
     } catch (Exception e) {
       restResponse.success = false;
