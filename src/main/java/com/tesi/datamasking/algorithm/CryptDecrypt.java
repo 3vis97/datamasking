@@ -62,6 +62,8 @@ public class CryptDecrypt {
             }
           } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.AMOUNT)) {
             if (field.getType().equals(BigDecimal.class)) {
+              if (!fpe.getEnumChar().equals(EnumChar.NUMBER))
+                fpe.useNumericCharset();
               field.set(classToCrypt, fpe.encryptAmount((BigDecimal) field.get(classToCrypt)));
             }
           }
@@ -104,6 +106,8 @@ public class CryptDecrypt {
             }
           } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.AMOUNT)) {
             if (field.getType().equals(BigDecimal.class)) {
+              if (!fpe.getEnumChar().equals(EnumChar.NUMBER))
+                fpe.useNumericCharset();
               field.set(classToDecrypt, fpe.decryptAmount((BigDecimal) field.get(classToDecrypt)));
             }
           }

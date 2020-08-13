@@ -127,14 +127,14 @@ public class FPE {
 
   public BigDecimal encryptAmount(BigDecimal value) {
     String doubleAsString = String.valueOf(value);
-    return new BigDecimal(encryptInt(Integer.valueOf(doubleAsString.split("\\.")[0])) + "." +
-        encryptInt(Integer.valueOf(doubleAsString.split("\\.")[1])));
+    return new BigDecimal(encryptString(doubleAsString.split("\\.")[0]) + "." +
+        encryptString(doubleAsString.split("\\.")[1]));
   }
 
   public BigDecimal decryptAmount(BigDecimal value) {
     String doubleAsString = String.valueOf(value);
-    return new BigDecimal(decryptInt(Integer.valueOf(doubleAsString.split("\\.")[0])) + "." +
-        decryptInt(Integer.valueOf(doubleAsString.split("\\.")[1])));
+    return new BigDecimal(decryptString(doubleAsString.split("\\.")[0]) + "." +
+        decryptString(doubleAsString.split("\\.")[1]));
   }
 
   private String encryptPart(String totalPart) {
