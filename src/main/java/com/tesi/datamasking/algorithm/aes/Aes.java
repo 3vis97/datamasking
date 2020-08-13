@@ -1,6 +1,6 @@
 package com.tesi.datamasking.algorithm.aes;
 
-import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.util.Base64Utils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -41,7 +41,7 @@ public class Aes {
       InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
     cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
     byte[] encrypted = cipher.doFinal(toBeEncrypt.getBytes());
-    return Base64.encodeBase64String(encrypted);
+    return Base64Utils.encodeToString(encrypted);
   }
 
   /**
@@ -58,7 +58,7 @@ public class Aes {
   public String decrypt(String encrypted) throws InvalidAlgorithmParameterException, InvalidKeyException,
       BadPaddingException, IllegalBlockSizeException {
     cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-    byte[] decryptedBytes = cipher.doFinal(Base64.decodeBase64(encrypted));
+    byte[] decryptedBytes = cipher.doFinal(Base64Utils.decodeFromString(encrypted));
     return new String(decryptedBytes);
   }
 }
