@@ -6,6 +6,7 @@ import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
 import com.tesi.datamasking.data.db.employees.Employees;
 import com.tesi.datamasking.data.db.employees.EmployeesRepository;
+import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
@@ -26,6 +27,9 @@ public class DataMaskingFacade {
   private final CustomersRepository customersRepository;
   private final Faker faker;
   private final CryptDecrypt cryptDecrypt;
+
+  private int customerId = 1;
+  private int employeeId = 1;
 
   @Autowired
   public DataMaskingFacade(EmployeesRepository employeesRepository,
@@ -116,9 +120,9 @@ public class DataMaskingFacade {
       long employees,
       int payslip) {
     for (int i = 0; i < customers; i++) {
-      Customers customerSaved = saveCustomer(generateRandomCliente());
+      Customers customerSaved = saveCustomer(generateRandomCliente(customerId++));
       for (int j = 0; j < employees; j++) {
-        Employees employeeSaved = saveEmployee(generateRandomEmployee(customerSaved));
+        Employees employeeSaved = saveEmployee(generateRandomEmployee(customerSaved, employeeId++));
         EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
         for (int z = payslip; z >= 0; z--) {
           for (int month = 1; month <= 12; month++) {
@@ -129,17 +133,16 @@ public class DataMaskingFacade {
     }
   }
 
-  private Payslips generateRandomPayslip(Employees dipendente,
-      int mese,
-      int anno,
+  private Payslips generateRandomPayslip(Employees employee,
+      int month,
+      int year,
       EnumEmployeeJob enumEmployeeJob) {
     Payslips payslip = new Payslips();
     int min = 1;
     int max = 10;
 
-    payslip.payslipYear = anno;
-    payslip.payslipMonth = mese;
-    payslip.employees = dipendente;
+    payslip.key = new PayslipKey(employee.employeeCode, year, month);
+    payslip.employees = employee;
     payslip.column1 = randomValue(faker, min, max);
     payslip.column2 = randomValue(faker, min, max);
     payslip.column3 = randomValue(faker, min, max);
@@ -182,9 +185,10 @@ public class DataMaskingFacade {
     return (int) ((Math.random() * (max - min)) + min);
   }
 
-  private Customers generateRandomCliente() {
+  private Customers generateRandomCliente(int customerId) {
     Customers customer = new Customers();
 
+    customer.customerCode = generateNextCustomerCode(customerId);
     customer.companyName = faker.company().name();
     customer.zipCode = Integer.parseInt(faker.address().zipCode());
     customer.city = faker.address().city();
@@ -196,10 +200,12 @@ public class DataMaskingFacade {
 
   }
 
-  private Employees generateRandomEmployee(Customers cliente) {
+  private Employees generateRandomEmployee(Customers cliente,
+      int employeeId) {
     Employees employee = new Employees();
 
     employee.customers = cliente;
+    employee.employeeCode = generateNextEmployeeCode(employeeId);
     employee.firstName = faker.name().firstName();
     employee.lastName = faker.name().lastName();
     employee.city = faker.address().city();
@@ -209,5 +215,13 @@ public class DataMaskingFacade {
     employee.zipCode = Integer.parseInt(faker.address().zipCode());
 
     return employee;
+  }
+
+  private String generateNextCustomerCode(int customerId) {
+    return "C" + String.format("%05d", customerId);
+  }
+
+  private String generateNextEmployeeCode(int employeeId) {
+    return "E" + String.format("%07d", employeeId);
   }
 }

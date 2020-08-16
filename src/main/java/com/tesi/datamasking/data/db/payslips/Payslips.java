@@ -3,12 +3,11 @@ package com.tesi.datamasking.data.db.payslips;
 import com.tesi.datamasking.context.DataCrypt;
 import com.tesi.datamasking.data.db.employees.Employees;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -16,12 +15,12 @@ import java.math.BigDecimal;
 @Table(name = "payslips")
 public class Payslips {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Long id;
+  @EmbeddedId
+  public PayslipKey key;
 
+  @MapsId("employeeCode")
   @ManyToOne
-  @JoinColumn(name = "employee_id")
+  @JoinColumn(name = "employee_code")
   public Employees employees;
 
   public String employeeJob;
@@ -55,10 +54,6 @@ public class Payslips {
 
   @DataCrypt(dataType = DataCrypt.DataType.LONG_STRING)
   public String column10;
-
-  public Integer payslipMonth;
-
-  public Integer payslipYear;
 
   @DataCrypt(dataType = DataCrypt.DataType.AMOUNT)
   public BigDecimal amount;

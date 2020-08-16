@@ -5,8 +5,6 @@ import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.payslips.Payslips;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -17,13 +15,11 @@ import java.util.List;
 @Entity
 @Table(name = "employees")
 public class Employees {
-
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  public Long id;
+  public String employeeCode;
 
   @ManyToOne
-  @JoinColumn(name = "customerId")
+  @JoinColumn(name = "customer_code")
   public Customers customers;
 
   @DataCrypt
