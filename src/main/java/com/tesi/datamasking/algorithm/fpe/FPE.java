@@ -138,21 +138,21 @@ public class FPE {
   }
 
   private String encryptPart(String totalPart) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     String[] subPart = totalPart.split("\\.");
     for (String part : subPart) {
-      result += encryptString(part) + ".";
+      result.append(encryptString(part)).append(".");
     }
-    return StringUtils.chop(result);
+    return StringUtils.chop(result.toString()); //remove last dot
   }
 
   private String decryptPart(String totalPart) {
-    String result = "";
+    StringBuilder result = new StringBuilder();
     String[] subPart = totalPart.split("\\.");
     for (String part : subPart) {
-      result += decryptString(part) + ".";
+      result.append(decryptString(part)).append(".");
     }
-    return StringUtils.chop(result);
+    return StringUtils.chop(result.toString());
   }
 
   public EnumChar getEnumChar() {
