@@ -4,6 +4,8 @@ import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,8 @@ public class DataMaskingController {
 
   private final DataMaskingFacade dataMaskingFacade;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(DataMaskingController.class);
+
   @Autowired
   public DataMaskingController(DataMaskingFacade dataMaskingFacade) {
     this.dataMaskingFacade = dataMaskingFacade;
@@ -27,12 +31,19 @@ public class DataMaskingController {
 
   @DeleteMapping("dataMasking")
   GenericRestResponse deleteAll() {
+    LOGGER.info("call deleteAll function");
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
+      LOGGER.info("starting deleting payslips...");
       dataMaskingFacade.deleteAllPayslips();
+      LOGGER.info("...complete!");
+      LOGGER.info("starting deleting employees...");
       dataMaskingFacade.deleteAllEmployees();
+      LOGGER.info("...complete!");
+      LOGGER.info("starting deleting customers...");
       dataMaskingFacade.deleteAllCustomers();
+      LOGGER.info("...complete!");
       stopwatch.stop();
       restResponse.details = MessageFormat
           .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
@@ -152,6 +163,7 @@ public class DataMaskingController {
 
   @GetMapping("dataMasking/keepAlive")
   GenericRestResponse keepAlive() {
+    LOGGER.info("call keepAlive");
     GenericRestResponse restResponse = new GenericRestResponse();
     restResponse.success = true;
     restResponse.details = "The application is up and running!";

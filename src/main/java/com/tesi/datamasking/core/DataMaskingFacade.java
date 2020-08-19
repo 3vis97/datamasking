@@ -124,9 +124,9 @@ public class DataMaskingFacade {
       for (int j = 0; j < employees; j++) {
         Employees employeeSaved = saveEmployee(generateRandomEmployee(customerSaved, employeeId++));
         EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
-        for (int z = payslip; z >= 0; z--) {
+        for (int z = payslip; z > 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            savePayslip(generateRandomPayslip(employeeSaved, month, 2020 - z, enumEmployeeJob));
+            savePayslip(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
           }
         }
       }
