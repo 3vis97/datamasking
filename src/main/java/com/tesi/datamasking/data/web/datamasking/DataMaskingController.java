@@ -6,6 +6,7 @@ import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -146,6 +147,14 @@ public class DataMaskingController {
       restResponse.success = false;
       restResponse.error = e.getMessage();
     }
+    return restResponse;
+  }
+
+  @GetMapping("dataMasking/keepAlive")
+  GenericRestResponse keepAlive() {
+    GenericRestResponse restResponse = new GenericRestResponse();
+    restResponse.success = true;
+    restResponse.details = "The application is up and running!";
     return restResponse;
   }
 }
