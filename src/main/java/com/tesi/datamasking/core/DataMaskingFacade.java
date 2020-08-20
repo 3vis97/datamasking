@@ -11,6 +11,7 @@ import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -81,8 +82,7 @@ public class DataMaskingFacade {
       IllegalBlockSizeException {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
-      cryptDecrypt.cryptClass(employee, Arrays.asList(setup.fields));
-      employeesRepository.save(employee);
+      decryptSingleEntity(setup, employee, employeesRepository);
     }
   }
 
@@ -91,29 +91,76 @@ public class DataMaskingFacade {
       IllegalBlockSizeException {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
-      cryptDecrypt.decryptClass(employee, Arrays.asList(setup.fields));
-      employeesRepository.save(employee);
+      cryptSingleEntity(setup, employee, employeesRepository);
     }
+  }
+
+  public void cryptSingleEmployee(PseudonymizationSetup setup,
+      String id)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    cryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
+  }
+
+  public void decryptSingleEmployee(PseudonymizationSetup setup,
+      String id)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    decryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
   }
 
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException {
     List<Payslips> allPayslips = getAllPayslips();
-    for (Payslips payslip : allPayslips) {
-      cryptDecrypt.cryptClass(payslip, Arrays.asList(setup.fields));
-      payslipsRepository.save(payslip);
+    for (Object payslip : allPayslips) {
+      cryptSingleEntity(setup, payslip, payslipsRepository);
     }
+  }
+
+  private void cryptSingleEntity(PseudonymizationSetup setup,
+      Object entity,
+      JpaRepository repository)
+      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
+      InvalidKeyException {
+    cryptDecrypt.cryptClass(entity, Arrays.asList(setup.fields));
+    repository.save(entity);
+  }
+
+  private void decryptSingleEntity(PseudonymizationSetup setup,
+      Object entity,
+      JpaRepository repository)
+      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
+      InvalidKeyException {
+    cryptDecrypt.decryptClass(entity, Arrays.asList(setup.fields));
+    repository.save(entity);
+  }
+
+  public void cryptSinglePayslip(PseudonymizationSetup setup,
+      PayslipKey id)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    cryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
+  }
+
+  public void decryptSinglePayslip(PseudonymizationSetup setup,
+      PayslipKey id)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    decryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
   }
 
   public void decryptAllPayslips(PseudonymizationSetup setup)
       throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException {
     List<Payslips> allPayslips = getAllPayslips();
-    for (Payslips payslip : allPayslips) {
-      cryptDecrypt.decryptClass(payslip, Arrays.asList(setup.fields));
-      payslipsRepository.save(payslip);
+    for (Object payslip : allPayslips) {
+      decryptSingleEntity(setup, payslip, payslipsRepository);
     }
+  }
+
+  public void performVoidEmployeeUpdate(String employeeCode) {
+    employeesRepository.save(employeesRepository.findById(employeeCode).get());
   }
 
   public void populateRandomData(long customers,

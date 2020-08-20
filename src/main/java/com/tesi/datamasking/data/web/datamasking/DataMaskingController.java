@@ -2,6 +2,7 @@ package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
+import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.slf4j.Logger;
@@ -45,8 +46,7 @@ public class DataMaskingController {
       dataMaskingFacade.deleteAllCustomers();
       LOGGER.info("...complete!");
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Delete ALL", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -61,8 +61,7 @@ public class DataMaskingController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.deleteAllEmployees();
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Delete completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Delete CUSTOMER", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -80,8 +79,7 @@ public class DataMaskingController {
       dataMaskingFacade
           .populateRandomData(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Populate completed in {0} seconds", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Populate ALL", stopwatch);
 
     } catch (Exception e) {
       restResponse.success = false;
@@ -99,8 +97,102 @@ public class DataMaskingController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.cryptAllPayslips(pseudonymizationSetup);
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Crypt ALL PAYSLIP", stopwatch);
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/employee/update/{employeeCode}")
+  GenericRestResponse updateSingleEmployee(
+      @PathVariable String employeeCode) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.performVoidEmployeeUpdate(employeeCode);
+      stopwatch.stop();
+      restResponse.details = formatPattern("UPDATE SINGLE EMPLOYEE", stopwatch);
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/employee/crypt/{employeeCode}")
+  GenericRestResponse cryptSingleEmployee(
+      @RequestBody PseudonymizationSetup pseudonymizationSetup,
+      @PathVariable String employeeCode) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.cryptSingleEmployee(pseudonymizationSetup, employeeCode);
+      stopwatch.stop();
+      restResponse.details = formatPattern("Crypt SINGLE EMPLOYEE", stopwatch);
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/employee/decrypt/{employeeCode}")
+  GenericRestResponse decryptSingleEmployee(
+      @RequestBody PseudonymizationSetup pseudonymizationSetup,
+      @PathVariable String employeeCode) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.decryptSingleEmployee(pseudonymizationSetup, employeeCode);
+      stopwatch.stop();
+      restResponse.details = formatPattern("Decrypt SINGLE EMPLOYEE", stopwatch);
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/payslip/crypt/{employeeCode}/{month}/{year}")
+  GenericRestResponse cryptSinglePayslip(
+      @RequestBody PseudonymizationSetup pseudonymizationSetup,
+      @PathVariable String employeeCode,
+      @PathVariable String month,
+      @PathVariable String year) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.cryptSinglePayslip(pseudonymizationSetup,
+          new PayslipKey(employeeCode, Integer.parseInt(month), Integer.parseInt(year)));
+      stopwatch.stop();
+      restResponse.details = formatPattern("Crypt SINGLE PAYSLIP", stopwatch);
+    } catch (Exception e) {
+      restResponse.success = false;
+      restResponse.error = e.getMessage();
+    }
+    return restResponse;
+  }
+
+  @PostMapping("dataMasking/payslip/decrypt/{employeeCode}/{month}/{year}")
+  GenericRestResponse decryptSinglePayslip(
+      @RequestBody PseudonymizationSetup pseudonymizationSetup,
+      @PathVariable String employeeCode,
+      @PathVariable String month,
+      @PathVariable String year) {
+    GenericRestResponse restResponse = new GenericRestResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      dataMaskingFacade.decryptSinglePayslip(pseudonymizationSetup,
+          new PayslipKey(employeeCode, Integer.parseInt(month), Integer.parseInt(year)));
+      stopwatch.stop();
+      restResponse.details = formatPattern("Decrypt SINGLE PAYSLIP", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -117,8 +209,7 @@ public class DataMaskingController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.decryptAllPayslips(pseudonymizationSetup);
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Decrypt ALL PAYSLIPS", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -135,8 +226,7 @@ public class DataMaskingController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.cryptAllEmployees(pseudonymizationSetup);
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Crypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Crypt ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -152,8 +242,7 @@ public class DataMaskingController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade.decryptAllEmployees(pseudonymizationSetup);
       stopwatch.stop();
-      restResponse.details = MessageFormat
-          .format("Decrypt completed in {0} seconds.", stopwatch.elapsed(TimeUnit.SECONDS));
+      restResponse.details = formatPattern("Decrypt ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
       restResponse.error = e.getMessage();
@@ -168,5 +257,12 @@ public class DataMaskingController {
     restResponse.success = true;
     restResponse.details = "The application is up and running!";
     return restResponse;
+  }
+
+  private String formatPattern(String method,
+      Stopwatch stopWatch) {
+    return MessageFormat
+        .format(method + " completed in {0} seconds, {1} millseconds", stopWatch.elapsed(TimeUnit.SECONDS),
+            stopWatch.elapsed(TimeUnit.MILLISECONDS));
   }
 }
