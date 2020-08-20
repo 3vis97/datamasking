@@ -1,5 +1,6 @@
 package com.tesi.datamasking.algorithm.aes;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -36,6 +37,44 @@ class AesTest {
       String secretDecrypted = aes.decrypt(secretEncrypted);
 
       Assert.assertThat(secretDecrypted, is(secret));
+
+    }
+
+    @Test
+    public void check_length()
+        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+      String key1 = "12Cd#94qpz!%4/(0"; //16 length
+      String key2 = "353fwafwg3plofmv"; //16 length
+
+      String secret = StringUtils.repeat("*", 1);
+
+      Aes aes = new Aes(key1, key2);
+      String secretEncrypted = aes.encrypt(secret);
+      String secretDecrypted = aes.decrypt(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, is(secret));
+      System.out.println("secret length: " + secret.length());
+      System.out.println("secretEncrypted length: " + secretEncrypted.length());
+
+    }
+
+    @Test
+    public void check_length_2()
+        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
+        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+      String key1 = StringUtils.repeat("*", 16);
+      String key2 = StringUtils.repeat("*", 16);
+
+      String secret = StringUtils.repeat("*", 150);
+
+      Aes aes = new Aes(key1, key2);
+      String secretEncrypted = aes.encrypt(secret);
+      String secretDecrypted = aes.decrypt(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, is(secret));
+      System.out.println("secret length: " + secret.length());
+      System.out.println("secretEncrypted length: " + secretEncrypted.length());
 
     }
   }

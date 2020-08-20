@@ -10,6 +10,7 @@ import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -188,18 +189,18 @@ public class DataMaskingFacade {
     int min = 1;
     int max = 10;
 
-    payslip.key = new PayslipKey(employee.employeeCode, year, month);
+    payslip.key = new PayslipKey(employee.employeeCode, month, year);
     payslip.employees = employee;
-    payslip.column1 = randomValue(faker, min, max);
-    payslip.column2 = randomValue(faker, min, max);
-    payslip.column3 = randomValue(faker, min, max);
-    payslip.column4 = randomValue(faker, min, max);
-    payslip.column5 = randomValue(faker, min, max);
-    payslip.column6 = randomValue(faker, min, max);
-    payslip.column7 = randomValue(faker, min, max);
-    payslip.column8 = randomValue(faker, min, max);
-    payslip.column9 = randomValue(faker, min, max);
-    payslip.column10 = randomValue(faker, min, max);
+    payslip.column1 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column2 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column3 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column4 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column5 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column6 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column7 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column8 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column9 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column10 = StringUtils.left(randomValue(faker, min, max), 150);
     payslip.amount = BigDecimal.valueOf(enumEmployeeJob.getBaseAmount());
     payslip.employeeJob = enumEmployeeJob.name();
 
