@@ -7,6 +7,8 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static org.hamcrest.Matchers.equalTo;
 
 class FPE_ImplTest {
@@ -102,6 +104,21 @@ class FPE_ImplTest {
       String secretDecrypted = fpe.decryptString(secretEncrypted);
 
       Assert.assertThat(secretDecrypted, CoreMatchers.is(secret));
+    }
+
+    @Test
+    public void check_decryption_with_decimal() {
+      String key1 = "ssdkF$HUy2A#D%kd";
+      String key2 = "weJiSEvR5yAC5ftB";
+
+      String secret = "852.91";
+
+      FPE fpe = new FPE(key1, key2);
+      fpe.useNumericCharset();
+      BigDecimal secretEncrypted = fpe.encryptAmount(new BigDecimal(secret));
+      BigDecimal secretDecrypted = fpe.decryptAmount(secretEncrypted);
+
+      Assert.assertThat(secretDecrypted, CoreMatchers.is(new BigDecimal(secret)));
     }
 
   }

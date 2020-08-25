@@ -17,4 +17,8 @@ public class Amounts {
   @DataCrypt(dataType = DataCrypt.DataType.AMOUNT)
   public BigDecimal price;
 
+  public String job;
+
+  public BigDecimal originalPrice;
+
 }

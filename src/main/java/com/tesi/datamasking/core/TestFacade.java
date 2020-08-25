@@ -54,8 +54,11 @@ public class TestFacade extends CoreFacade {
   private Amounts generateRandomAmounts(int code,
       EnumEmployeeJob enumEmployeeJob) {
     Amounts amounts = new Amounts();
+    BigDecimal baseAmount = BigDecimal.valueOf(enumEmployeeJob.getBaseAmount());
     amounts.code = generateNextAmountCode(code);
-    amounts.price = BigDecimal.valueOf(enumEmployeeJob.getBaseAmount());
+    amounts.price = baseAmount;
+    amounts.job = enumEmployeeJob.name();
+    amounts.originalPrice = baseAmount;
     return amounts;
   }
 

@@ -13,6 +13,7 @@ import com.tesi.datamasking.algorithm.fpe.custom.UnicodeChar;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.util.Random;
 
 public class FPE {
 
@@ -127,14 +128,24 @@ public class FPE {
 
   public BigDecimal encryptAmount(BigDecimal value) {
     String doubleAsString = String.valueOf(value);
-    return new BigDecimal(encryptString(doubleAsString.split("\\.")[0]) + "." +
-        encryptString(doubleAsString.split("\\.")[1]));
+    String leftSide = randomChar() + encryptString(doubleAsString.split("\\.")[0]);
+    String rightSide = encryptString(doubleAsString.split("\\.")[1]);
+
+    return new BigDecimal(leftSide + "." + rightSide);
   }
 
   public BigDecimal decryptAmount(BigDecimal value) {
     String doubleAsString = String.valueOf(value);
-    return new BigDecimal(decryptString(doubleAsString.split("\\.")[0]) + "." +
+    return new BigDecimal(decryptString(doubleAsString.split("\\.")[0].substring(1)) + "." +
         decryptString(doubleAsString.split("\\.")[1]));
+  }
+
+  private char randomChar() {
+    final String num = "123456789";
+    final int N = num.length();
+
+    Random random = new Random();
+    return num.charAt(random.nextInt(N));
   }
 
   private String encryptPart(String totalPart) {
