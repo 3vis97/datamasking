@@ -15,11 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.text.MessageFormat;
-import java.util.concurrent.TimeUnit;
-
 @RestController
-public class DataMaskingController {
+public class DataMaskingController extends CoreController {
 
   private final DataMaskingFacade dataMaskingFacade;
 
@@ -276,10 +273,4 @@ public class DataMaskingController {
     return restResponse;
   }
 
-  private String formatPattern(String method,
-      Stopwatch stopWatch) {
-    return MessageFormat
-        .format(method + " completed in {0} seconds, {1} millseconds", stopWatch.elapsed(TimeUnit.SECONDS),
-            stopWatch.elapsed(TimeUnit.MILLISECONDS));
-  }
 }

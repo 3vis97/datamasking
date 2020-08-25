@@ -3,6 +3,8 @@ package com.tesi.datamasking.config;
 import com.github.javafaker.Faker;
 import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.core.DataMaskingFacade;
+import com.tesi.datamasking.core.TestFacade;
+import com.tesi.datamasking.data.db.amounts.AmountsRepository;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
 import com.tesi.datamasking.data.db.employees.EmployeesRepository;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
@@ -37,6 +39,13 @@ public class DataMaskingRestConfig {
       @Value("${secret.key.two}") String KEY_2)
       throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException {
     return new CryptDecrypt(KEY_1, KEY_2);
+  }
+
+  @Bean
+  public TestFacade testFacade(AmountsRepository amountsRepository,
+      Faker faker,
+      CryptDecrypt cryptDecrypt) {
+    return new TestFacade(amountsRepository, faker, cryptDecrypt);
   }
 
 }
