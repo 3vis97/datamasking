@@ -19,6 +19,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -208,6 +209,40 @@ public class DataMaskingFacade {
         saveAllPayslip(payslips);
       }
     }
+  }
+
+  public void populateRandomData_batch(long customers,
+      long employees,
+      int payslip) {
+    List<Customers> customerList = new ArrayList<>();
+    List<Employees> employeesList = new ArrayList<>();
+    List<Payslips> payslips = new ArrayList<>();
+    for (int i = 0; i < customers; i++) {
+      Customers customerSaved = generateRandomCliente(customerId++);
+      customerList.add(customerSaved);
+      for (int j = 0; j < employees; j++) {
+        Employees employeeSaved = generateRandomEmployee(customerSaved, employeeId++);
+        employeesList.add(employeeSaved);
+        EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
+        for (int z = payslip; z > 0; z--) {
+          for (int month = 1; month <= 12; month++) {
+            payslips.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
+          }
+        }
+      }
+    }
+  }
+
+  @Transactional
+  public void insertInBatchMode(long customers,
+      int batchSize) {
+    List<Customers> customerList = new ArrayList<>();
+
+    for (int i = 0; i < customers; i++) {
+      Customers customerSaved = generateRandomCliente(customerId++);
+      customerList.add(customerSaved);
+    }
+    customersRepository.insertWithBatchInsert(customerList, batchSize);
   }
 
   private Payslips generateRandomPayslip(Employees employee,
