@@ -1,4 +1,4 @@
-package com.tesi.datamasking.data.db.customers;
+package com.tesi.datamasking.data.db.payslips;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -10,7 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Transactional
-public class CustomersRepositoryImpl implements CustomCustomerRepository {
+public class PayslipsRepositoryImpl implements CustomPayslipsRepository {
 
   @Autowired
   private EntityManagerFactory entityManagerFactory;
@@ -18,11 +18,11 @@ public class CustomersRepositoryImpl implements CustomCustomerRepository {
   private final int defaultBatchSize = 1000;
 
   @Override
-  public void insertWithBatchInsert(List<Customers> rows) {
+  public void insertWithBatchInsert(List<Payslips> rows) {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     EntityTransaction entityTransaction = entityManager.getTransaction();
 
-    Iterator<Customers> iterator = rows.iterator();
+    Iterator<Payslips> iterator = rows.iterator();
     entityTransaction.begin();
     int cont = 0;
     while (iterator.hasNext()) {

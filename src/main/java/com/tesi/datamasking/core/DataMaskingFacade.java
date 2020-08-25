@@ -215,34 +215,37 @@ public class DataMaskingFacade {
       long employees,
       int payslip) {
     List<Customers> customerList = new ArrayList<>();
-    List<Employees> employeesList = new ArrayList<>();
-    List<Payslips> payslips = new ArrayList<>();
+    List<Payslips> payslipsList = new ArrayList<>();
+    LOGGER.info("Starting creating random fake data...");
     for (int i = 0; i < customers; i++) {
       Customers customerSaved = generateRandomCliente(customerId++);
       customerList.add(customerSaved);
       for (int j = 0; j < employees; j++) {
         Employees employeeSaved = generateRandomEmployee(customerSaved, employeeId++);
-        employeesList.add(employeeSaved);
         EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
         for (int z = payslip; z > 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            payslips.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
+            payslipsList.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
           }
         }
       }
+      LOGGER.info("...completed " + (i + 1) + " of " + customers + "customers!");
     }
+    LOGGER.info("Persist in db...");
+    customersRepository.insertWithBatchInsert(customerList);
+    payslipsRepository.insertWithBatchInsert(payslipsList);
+    LOGGER.info("...done!");
   }
 
   @Transactional
-  public void insertInBatchMode(long customers,
-      int batchSize) {
+  public void insertInBatchMode(long customers) {
     List<Customers> customerList = new ArrayList<>();
 
     for (int i = 0; i < customers; i++) {
       Customers customerSaved = generateRandomCliente(customerId++);
       customerList.add(customerSaved);
     }
-    customersRepository.insertWithBatchInsert(customerList, batchSize);
+    customersRepository.insertWithBatchInsert(customerList);
   }
 
   private Payslips generateRandomPayslip(Employees employee,

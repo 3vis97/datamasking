@@ -70,13 +70,12 @@ public class DataMaskingController {
   }
 
   @PostMapping("dataMasking/addCustomers/{customers}/{batchSize}")
-  GenericRestResponse populateCustomers(@PathVariable String customers,
-      @PathVariable String batchSize) {
+  GenericRestResponse populateCustomers(@PathVariable String customers) {
     GenericRestResponse restResponse = new GenericRestResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade
-          .insertInBatchMode(Long.parseLong(customers), Integer.parseInt(batchSize));
+          .insertInBatchMode(Long.parseLong(customers));
       stopwatch.stop();
       restResponse.details = formatPattern("Populate CUSTOMERS", stopwatch);
 
@@ -95,7 +94,7 @@ public class DataMaskingController {
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade
-          .populateRandomData(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
+          .populateRandomData_batch(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
       stopwatch.stop();
       restResponse.details = formatPattern("Populate ALL", stopwatch);
 
