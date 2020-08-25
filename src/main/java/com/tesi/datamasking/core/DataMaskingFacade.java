@@ -1,6 +1,7 @@
 package com.tesi.datamasking.core;
 
 import com.github.javafaker.Faker;
+import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
@@ -11,6 +12,8 @@ import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,8 +22,10 @@ import javax.crypto.IllegalBlockSizeException;
 import java.math.BigDecimal;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DataMaskingFacade {
 
@@ -32,6 +37,8 @@ public class DataMaskingFacade {
 
   private int customerId = 1;
   private int employeeId = 1;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(DataMaskingFacade.class);
 
   @Autowired
   public DataMaskingFacade(EmployeesRepository employeesRepository,
@@ -52,6 +59,10 @@ public class DataMaskingFacade {
 
   private Payslips savePayslip(Payslips payslips) {
     return payslipsRepository.save(payslips);
+  }
+
+  private void saveAllPayslip(List<Payslips> payslipsList) {
+    payslipsRepository.saveAll(payslipsList);
   }
 
   private Customers saveCustomer(Customers customer) {
@@ -113,10 +124,33 @@ public class DataMaskingFacade {
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException {
+    Stopwatch stopwatch = Stopwatch.createStarted();
     List<Payslips> allPayslips = getAllPayslips();
+    stopwatch.stop();
+    LOGGER.info("cryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    stopwatch.reset();
+    stopwatch.start();
     for (Object payslip : allPayslips) {
       cryptSingleEntity(setup, payslip, payslipsRepository);
     }
+    stopwatch.stop();
+    LOGGER.info("cryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+  }
+
+  public void decryptAllPayslips(PseudonymizationSetup setup)
+      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+      IllegalBlockSizeException {
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    List<Payslips> allPayslips = getAllPayslips();
+    stopwatch.stop();
+    LOGGER.info("decryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    stopwatch.reset();
+    stopwatch.start();
+    for (Object payslip : allPayslips) {
+      decryptSingleEntity(setup, payslip, payslipsRepository);
+    }
+    stopwatch.stop();
+    LOGGER.info("decryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
   }
 
   private void cryptSingleEntity(PseudonymizationSetup setup,
@@ -151,14 +185,7 @@ public class DataMaskingFacade {
     decryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
   }
 
-  public void decryptAllPayslips(PseudonymizationSetup setup)
-      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException {
-    List<Payslips> allPayslips = getAllPayslips();
-    for (Object payslip : allPayslips) {
-      decryptSingleEntity(setup, payslip, payslipsRepository);
-    }
-  }
+
 
   public void performVoidEmployeeUpdate(String employeeCode) {
     employeesRepository.save(employeesRepository.findById(employeeCode).get());
@@ -172,11 +199,13 @@ public class DataMaskingFacade {
       for (int j = 0; j < employees; j++) {
         Employees employeeSaved = saveEmployee(generateRandomEmployee(customerSaved, employeeId++));
         EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
+        List<Payslips> payslips = new ArrayList<>();
         for (int z = payslip; z > 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            savePayslip(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
+            payslips.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
           }
         }
+        saveAllPayslip(payslips);
       }
     }
   }
