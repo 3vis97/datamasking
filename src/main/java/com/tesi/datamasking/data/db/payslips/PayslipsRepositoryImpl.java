@@ -15,7 +15,7 @@ public class PayslipsRepositoryImpl implements CustomPayslipsRepository {
   @Autowired
   private EntityManagerFactory entityManagerFactory;
 
-  private final int defaultBatchSize = 1000;
+  private final int defaultBatchSize = 960;
 
   @Override
   public void insertWithBatchInsert(List<Payslips> rows) {

@@ -15,7 +15,7 @@ public class CustomersRepositoryImpl implements CustomCustomerRepository {
   @Autowired
   private EntityManagerFactory entityManagerFactory;
 
-  private final int defaultBatchSize = 1000;
+  private final int defaultBatchSize = 50;
 
   @Override
   public void insertWithBatchInsert(List<Customers> rows) {
