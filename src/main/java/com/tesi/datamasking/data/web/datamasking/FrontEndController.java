@@ -50,7 +50,7 @@ public class FrontEndController extends CoreController {
       response.payslipList = dataMaskingFacade.getAllPayslips();
       stopwatch.stop();
       response.size = response.payslipList.size();
-      response.details = formatPattern("GET PAYSLIPS", stopwatch);
+      response.details = formatPattern("GET ALL PAYSLIPS", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
@@ -92,8 +92,24 @@ public class FrontEndController extends CoreController {
     return response;
   }
 
+  @GetMapping("front/getEmployees")
+  EmployeesResponse getEmployees() {
+    EmployeesResponse response = new EmployeesResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      response.employeesList = dataMaskingFacade.getAllEmployees();
+      stopwatch.stop();
+      response.size = response.employeesList.size();
+      response.details = formatPattern("GET ALL EMPLOYEES", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
   @GetMapping("front/getEmployee/{name}/{lastName}")
-  EmployeesResponse getEmployee(@PathVariable String name,
+  EmployeesResponse getEmployeeGivenNameAndLastName(@PathVariable String name,
       @PathVariable String lastName) {
     EmployeesResponse response = new EmployeesResponse();
     try {
@@ -102,6 +118,22 @@ public class FrontEndController extends CoreController {
       stopwatch.stop();
       response.size = response.employeesList.size();
       response.details = formatPattern("GET EMPLOYEE given FIRST NAME and LAST NAME", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
+  @GetMapping("front/getEmployees/{customerCode}")
+  EmployeesResponse getEmployeeGivenCustomerCode(@PathVariable String customerCode) {
+    EmployeesResponse response = new EmployeesResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      response.employeesList = dataMaskingFacade.getEmployeeByCustomerCode(customerCode);
+      stopwatch.stop();
+      response.size = response.employeesList.size();
+      response.details = formatPattern("GET EMPLOYEES given CUSTOMER_CODE", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();

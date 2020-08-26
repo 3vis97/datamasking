@@ -9,6 +9,6 @@ public interface EmployeesRepository extends JpaRepository<Employees, String>, C
   List<Employees> findByFirstNameAndLastName(String firstName,
       String lastName);
 
-  List<Employees> findByCustomerCode(String customerCode);
+  List<Employees> findByCustomers_CustomerCode(String customerCode);
 
 }

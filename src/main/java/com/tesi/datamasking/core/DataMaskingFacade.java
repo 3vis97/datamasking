@@ -73,7 +73,7 @@ public class DataMaskingFacade {
     return customersRepository.save(customer);
   }
 
-  private List<Employees> getAllEmployees() {
+  public List<Employees> getAllEmployees() {
     return employeesRepository.findAll();
   }
 
@@ -267,7 +267,7 @@ public class DataMaskingFacade {
   }
 
   public List<Employees> getEmployeeByCustomerCode(String customerCode) {
-    return employeesRepository.findByCustomerCode(customerCode);
+    return employeesRepository.findByCustomers_CustomerCode(customerCode);
   }
 
   @Transactional
