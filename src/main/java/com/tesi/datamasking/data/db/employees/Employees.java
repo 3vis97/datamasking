@@ -42,12 +42,4 @@ public class Employees {
 
   @OneToMany(mappedBy = "employees")
   private List<Payslips> payslips;
-
-  public List<Payslips> getCedoliniLogs() {
-    return payslips;
-  }
-
-  public void setCedoliniLogs(List<Payslips> payslips) {
-    this.payslips = payslips;
-  }
 }

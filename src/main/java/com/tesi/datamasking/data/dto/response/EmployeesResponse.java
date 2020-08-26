@@ -8,5 +8,5 @@ public class EmployeesResponse extends GenericRestResponse {
 
   public List<Employees> employeesList;
 
-  public Employees employees;
+  public Employees employee;
 }

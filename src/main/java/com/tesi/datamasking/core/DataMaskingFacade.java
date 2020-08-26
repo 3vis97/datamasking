@@ -77,7 +77,7 @@ public class DataMaskingFacade {
     return employeesRepository.findAll();
   }
 
-  private List<Payslips> getAllPayslips() {
+  public List<Payslips> getAllPayslips() {
     return payslipsRepository.findAll();
   }
 
@@ -253,12 +253,21 @@ public class DataMaskingFacade {
           }
         }
       }
-      LOGGER.info("...completed " + (i + 1) + " of " + customers + "customers!");
+      LOGGER.info("...completed " + (i + 1) + " of " + customers + " customers!");
     }
     LOGGER.info("Persist in db...");
     customersRepository.insertWithBatchInsert(customerList);
     payslipsRepository.insertWithBatchInsert(payslipsList);
     LOGGER.info("...done!");
+  }
+
+  public List<Employees> getEmployeeByFirstNameAndLastName(String name,
+      String lastName) {
+    return employeesRepository.findByFirstNameAndLastName(name, lastName);
+  }
+
+  public List<Employees> getEmployeeByCustomerCode(String customerCode) {
+    return employeesRepository.findByCustomerCode(customerCode);
   }
 
   @Transactional

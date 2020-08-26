@@ -6,8 +6,8 @@ import com.tesi.datamasking.data.db.employees.Employees;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -19,7 +19,7 @@ public class Payslips {
   public PayslipKey key;
 
   @MapsId("employeeCode")
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "employee_code")
   public Employees employees;
 

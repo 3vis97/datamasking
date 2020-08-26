@@ -6,7 +6,7 @@ import java.util.List;
 
 public class PayslipsResponse extends GenericRestResponse {
 
-  public List<Payslips> employeesList;
+  public List<Payslips> payslipList;
 
-  public Payslips employees;
+  public Payslips payslip;
 }

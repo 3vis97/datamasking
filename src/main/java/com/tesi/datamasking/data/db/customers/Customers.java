@@ -30,12 +30,4 @@ public class Customers {
   @OneToMany(mappedBy = "customers")
   private List<Employees> employeesList;
 
-  public List<Employees> getEmployeesList() {
-    return employeesList;
-  }
-
-  public void setEmployeesList(List<Employees> employeesList) {
-    this.employeesList = employeesList;
-  }
-
 }
