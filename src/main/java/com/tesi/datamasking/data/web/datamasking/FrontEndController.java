@@ -2,6 +2,8 @@ package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
+import com.tesi.datamasking.data.db.employees.Employees;
+import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.dto.response.EmployeesResponse;
 import com.tesi.datamasking.data.dto.response.PayslipsResponse;
 import org.slf4j.Logger;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 public class FrontEndController extends CoreController {
@@ -19,6 +22,8 @@ public class FrontEndController extends CoreController {
   private final DataMaskingFacade dataMaskingFacade;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FrontEndController.class);
+
+  private final int MAX_DIMENSION_FOR_OUTPUT = 1000;
 
   @Autowired
   public FrontEndController(DataMaskingFacade dataMaskingFacade) {
@@ -47,9 +52,11 @@ public class FrontEndController extends CoreController {
     PayslipsResponse response = new PayslipsResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      response.payslipList = dataMaskingFacade.getAllPayslips();
+      List<Payslips> payslipsList = dataMaskingFacade.getAllPayslips();
       stopwatch.stop();
-      response.size = response.payslipList.size();
+      if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.payslipList = payslipsList;
+      response.size = payslipsList.size();
       response.details = formatPattern("GET ALL PAYSLIPS", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -61,11 +68,14 @@ public class FrontEndController extends CoreController {
   @GetMapping("front/getPayslips/{code}")
   PayslipsResponse getPayslips(@PathVariable String code) {
     PayslipsResponse response = new PayslipsResponse();
+
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      response.payslipList = dataMaskingFacade.getPayslips(code);
+      List<Payslips> payslipsList = dataMaskingFacade.getPayslips(code);
       stopwatch.stop();
-      response.size = response.payslipList.size();
+      if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.payslipList = payslipsList;
+      response.size = payslipsList.size();
       response.details = formatPattern("GET PAYSLIPS", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -97,9 +107,11 @@ public class FrontEndController extends CoreController {
     EmployeesResponse response = new EmployeesResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      response.employeesList = dataMaskingFacade.getAllEmployees();
+      List<Employees> employeesList = dataMaskingFacade.getAllEmployees();
       stopwatch.stop();
-      response.size = response.employeesList.size();
+      if (employeesList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.employeesList = employeesList;
+      response.size = employeesList.size();
       response.details = formatPattern("GET ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {
       response.success = false;
