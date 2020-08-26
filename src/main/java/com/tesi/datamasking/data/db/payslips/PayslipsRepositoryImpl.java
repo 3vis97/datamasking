@@ -37,4 +37,24 @@ public class PayslipsRepositoryImpl implements CustomPayslipsRepository {
     }
     entityTransaction.commit();
   }
+
+  public void updateWithBatchInsert(List<Payslips> rows) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    EntityTransaction entityTransaction = entityManager.getTransaction();
+
+    Iterator<Payslips> iterator = rows.iterator();
+    entityTransaction.begin();
+    int cont = 0;
+    while (iterator.hasNext()) {
+      entityManager.merge(iterator.next());
+      cont++;
+      if (cont % defaultBatchSize == 0) {
+        entityManager.flush();
+        entityManager.clear();
+        entityTransaction.commit();
+        entityTransaction.begin();
+      }
+    }
+    entityTransaction.commit();
+  }
 }

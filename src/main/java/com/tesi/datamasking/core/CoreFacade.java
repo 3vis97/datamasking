@@ -32,4 +32,24 @@ public class CoreFacade {
     repository.save(entity);
   }
 
+  protected Object cryptSingleEntityAndReturn(PseudonymizationSetup setup,
+      Object entity,
+      JpaRepository repository,
+      CryptDecrypt cryptDecrypt)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    cryptDecrypt.cryptClass(entity, Arrays.asList(setup.fields));
+    return entity;
+  }
+
+  protected Object decryptSingleEntityAndReturn(PseudonymizationSetup setup,
+      Object entity,
+      JpaRepository repository,
+      CryptDecrypt cryptDecrypt)
+      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
+      IllegalAccessException {
+    cryptDecrypt.decryptClass(entity, Arrays.asList(setup.fields));
+    return entity;
+  }
+
 }

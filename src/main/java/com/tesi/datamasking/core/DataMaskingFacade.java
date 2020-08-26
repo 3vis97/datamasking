@@ -1,7 +1,6 @@
 package com.tesi.datamasking.core;
 
 import com.github.javafaker.Faker;
-import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
@@ -16,6 +15,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.crypto.BadPaddingException;
@@ -29,9 +31,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
-public class DataMaskingFacade {
+public class DataMaskingFacade extends CoreFacade {
 
   private final EmployeesRepository employeesRepository;
   private final PayslipsRepository payslipsRepository;
@@ -165,36 +166,62 @@ public class DataMaskingFacade {
     decryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
   }
 
+  //  public void cryptAllPayslips(PseudonymizationSetup setup)
+  //      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
+  //      IllegalBlockSizeException {
+  //    Stopwatch stopwatch = Stopwatch.createStarted();
+  //    List<Payslips> allPayslips = getAllPayslips();
+  //    stopwatch.stop();
+  //    LOGGER.info("cryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+  //    stopwatch.reset();
+  //    stopwatch.start();
+  //    for (Object payslip : allPayslips) {
+  //      cryptSingleEntity(setup, payslip, payslipsRepository);
+  //    }
+  //    stopwatch.stop();
+  //    LOGGER.info("cryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+  //  }
+
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    List<Payslips> allPayslips = getAllPayslips();
-    stopwatch.stop();
-    LOGGER.info("cryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    stopwatch.reset();
-    stopwatch.start();
-    for (Object payslip : allPayslips) {
-      cryptSingleEntity(setup, payslip, payslipsRepository);
+    Pageable pageRequest = PageRequest.of(0, 960);
+    Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
+    List<Payslips> newUpdatedPayslips = new ArrayList<>();
+
+    while (!onePage.isEmpty()) {
+      pageRequest = pageRequest.next();
+
+      List<Payslips> currentpageList = onePage.getContent();
+      for (Payslips payslip : currentpageList) {
+        newUpdatedPayslips.add(
+            (Payslips) cryptSingleEntityAndReturn(setup, payslip, payslipsRepository, cryptDecrypt));
+      }
+      onePage = payslipsRepository.findAll(pageRequest);
     }
-    stopwatch.stop();
-    LOGGER.info("cryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
   }
 
   public void decryptAllPayslips(PseudonymizationSetup setup)
       throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
       IllegalBlockSizeException {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    List<Payslips> allPayslips = getAllPayslips();
-    stopwatch.stop();
-    LOGGER.info("decryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-    stopwatch.reset();
-    stopwatch.start();
-    for (Object payslip : allPayslips) {
-      decryptSingleEntity(setup, payslip, payslipsRepository);
+    Pageable pageRequest = PageRequest.of(0, 960);
+    Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
+    List<Payslips> newUpdatedPayslips = new ArrayList<>();
+
+    while (!onePage.isEmpty()) {
+      pageRequest = pageRequest.next();
+
+      List<Payslips> currentpageList = onePage.getContent();
+      for (Payslips payslip : currentpageList) {
+        newUpdatedPayslips.add(
+            (Payslips) decryptSingleEntityAndReturn(setup, payslip, payslipsRepository, cryptDecrypt));
+      }
+
+      onePage = payslipsRepository.findAll(pageRequest);
     }
-    stopwatch.stop();
-    LOGGER.info("decryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
+
   }
 
   private void cryptSingleEntity(PseudonymizationSetup setup,
@@ -291,16 +318,16 @@ public class DataMaskingFacade {
 
     payslip.key = new PayslipKey(employee.employeeCode, month, year);
     payslip.employees = employee;
-    payslip.column1 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column2 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column3 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column4 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column5 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column6 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column7 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column8 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column9 = StringUtils.left(randomValue(faker, min, max), 150);
-    payslip.column10 = StringUtils.left(randomValue(faker, min, max), 150);
+    payslip.column1 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column2 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column3 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column4 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column5 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column6 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column7 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column8 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column9 = StringUtils.left(randomValue(faker, min, max), 100);
+    payslip.column10 = StringUtils.left(randomValue(faker, min, max), 100);
     payslip.amount = BigDecimal.valueOf(enumEmployeeJob.getBaseAmount());
     payslip.employeeJob = enumEmployeeJob.name();
 

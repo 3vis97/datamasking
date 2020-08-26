@@ -6,4 +6,6 @@ public interface CustomPayslipsRepository {
 
   void insertWithBatchInsert(List<Payslips> payslipsList);
 
+  void updateWithBatchInsert(List<Payslips> payslipsList);
+
 }
