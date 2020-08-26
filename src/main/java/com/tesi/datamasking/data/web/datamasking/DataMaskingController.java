@@ -3,8 +3,8 @@ package com.tesi.datamasking.data.web.datamasking;
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.data.db.payslips.PayslipKey;
-import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
+import com.tesi.datamasking.data.dto.response.GenericRestResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +91,7 @@ public class DataMaskingController extends CoreController {
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       dataMaskingFacade
-          .populateRandomData_batch(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
+          .populateRandomData(Long.parseLong(customers), Long.parseLong(employees), Integer.parseInt(payslip));
       stopwatch.stop();
       restResponse.details = formatPattern("Populate ALL", stopwatch);
 

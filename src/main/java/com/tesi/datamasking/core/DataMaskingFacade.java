@@ -11,6 +11,7 @@ import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
+import com.tesi.datamasking.exception.EmployeeNotFoundException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,11 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class DataMaskingFacade {
@@ -76,6 +79,46 @@ public class DataMaskingFacade {
 
   private List<Payslips> getAllPayslips() {
     return payslipsRepository.findAll();
+  }
+
+  public Payslips getSinglePayslip(String employeeCode,
+      int month,
+      int year) throws EmployeeNotFoundException {
+    Optional<Payslips> payslip = payslipsRepository.findById(new PayslipKey(employeeCode, month, year));
+    if (payslip.isPresent())
+      return payslip.get();
+    else
+      throw new EmployeeNotFoundException(
+          MessageFormat.format("Employee with code ({0}) month ({1}) year ({2}) not found", employeeCode, month, year));
+  }
+
+  public List<Payslips> getPayslips(String employeeCode) {
+    return payslipsRepository.findByKeyEmployeeCode(employeeCode);
+  }
+
+  public List<Payslips> getPayslipsGivenAmount(String employeeCode,
+      BigDecimal amount,
+      String operator) {
+    List<Payslips> payslipsList = new ArrayList<>();
+
+    switch (operator) {
+    case "<":
+      payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountLessThan(employeeCode, amount);
+      break;
+    case "<=":
+      payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountLessThanEqual(employeeCode, amount);
+      break;
+    case "=":
+      payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountIs(employeeCode, amount);
+      break;
+    case ">":
+      payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountGreaterThan(employeeCode, amount);
+      break;
+    case ">=":
+      payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountGreaterThanEqual(employeeCode, amount);
+      break;
+    }
+    return payslipsList;
   }
 
   public void deleteAllEmployees() {
@@ -193,25 +236,6 @@ public class DataMaskingFacade {
   }
 
   public void populateRandomData(long customers,
-      long employees,
-      int payslip) {
-    for (int i = 0; i < customers; i++) {
-      Customers customerSaved = saveCustomer(generateRandomCliente(customerId++));
-      for (int j = 0; j < employees; j++) {
-        Employees employeeSaved = saveEmployee(generateRandomEmployee(customerSaved, employeeId++));
-        EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
-        List<Payslips> payslips = new ArrayList<>();
-        for (int z = payslip; z > 0; z--) {
-          for (int month = 1; month <= 12; month++) {
-            payslips.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
-          }
-        }
-        saveAllPayslip(payslips);
-      }
-    }
-  }
-
-  public void populateRandomData_batch(long customers,
       long employees,
       int payslip) {
     List<Customers> customerList = new ArrayList<>();

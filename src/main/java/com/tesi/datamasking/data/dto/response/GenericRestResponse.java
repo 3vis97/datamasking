@@ -1,4 +1,4 @@
-package com.tesi.datamasking.data.dto;
+package com.tesi.datamasking.data.dto.response;
 
 public class GenericRestResponse {
 

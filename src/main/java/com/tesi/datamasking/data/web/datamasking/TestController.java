@@ -2,8 +2,8 @@ package com.tesi.datamasking.data.web.datamasking;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.TestFacade;
-import com.tesi.datamasking.data.dto.GenericRestResponse;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
+import com.tesi.datamasking.data.dto.response.GenericRestResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
