@@ -7,10 +7,10 @@ import java.lang.reflect.Field;
 public class CustomUtils {
 
   public static DataCrypt getDataCrypt(Object clazzToScan,
-      String fieldValue) throws Exception {
+      String fieldName) throws Exception {
     Field[] classFields = clazzToScan.getClass().getFields();
     for (Field field : classFields) {
-      if (field.getName().equals(fieldValue))
+      if (field.getName().equals(fieldName))
         if (field.isAnnotationPresent(DataCrypt.class)) {
           return field.getAnnotation(DataCrypt.class);
         }

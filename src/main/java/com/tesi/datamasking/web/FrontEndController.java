@@ -1,9 +1,9 @@
-package com.tesi.datamasking.data.web.datamasking;
+package com.tesi.datamasking.web;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.data.db.employees.Employees;
-import com.tesi.datamasking.data.db.payslips.Payslips;
+import com.tesi.datamasking.data.db.payslips.PayslipsDto;
 import com.tesi.datamasking.data.dto.response.EmployeesResponse;
 import com.tesi.datamasking.data.dto.response.PayslipsResponse;
 import org.slf4j.Logger;
@@ -52,7 +52,7 @@ public class FrontEndController extends CoreController {
     PayslipsResponse response = new PayslipsResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      List<Payslips> payslipsList = dataMaskingFacade.getAllPayslips();
+      List<PayslipsDto> payslipsList = dataMaskingFacade.getAllPayslips();
       stopwatch.stop();
       if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
         response.payslipList = payslipsList;
@@ -71,7 +71,7 @@ public class FrontEndController extends CoreController {
 
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      List<Payslips> payslipsList = dataMaskingFacade.getPayslips(code);
+      List<PayslipsDto> payslipsList = dataMaskingFacade.getPayslips(code);
       stopwatch.stop();
       if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
         response.payslipList = payslipsList;
@@ -92,6 +92,24 @@ public class FrontEndController extends CoreController {
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
       response.payslipList = dataMaskingFacade.getPayslipsGivenAmount(code, amount, operator);
+      stopwatch.stop();
+      response.size = response.payslipList.size();
+      response.details = formatPattern("GET PAYSLIP given AMOUNT", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
+  @GetMapping("front/getPayslipsMasked/{code}/{amount}/{operator}")
+  PayslipsResponse getPayslipMaskedGivenAmount(@PathVariable String code,
+      @PathVariable BigDecimal amount,
+      @PathVariable String operator) {
+    PayslipsResponse response = new PayslipsResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      response.payslipList = dataMaskingFacade.getPayslipsMaskedGivenAmount(code, amount, operator);
       stopwatch.stop();
       response.size = response.payslipList.size();
       response.details = formatPattern("GET PAYSLIP given AMOUNT", stopwatch);
@@ -146,7 +164,7 @@ public class FrontEndController extends CoreController {
       response.employeesDtoList = dataMaskingFacade.getEmployeeMaskedByFirstNameAndLastName(name, lastName);
       stopwatch.stop();
       response.size = response.employeesList.size();
-      response.details = formatPattern("GET EMPLOYEE given FIRST NAME and LAST NAME", stopwatch);
+      response.details = formatPattern("GET EMPLOYEE MASKED given FIRST NAME and LAST NAME", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
@@ -163,6 +181,22 @@ public class FrontEndController extends CoreController {
       stopwatch.stop();
       response.size = response.employeesList.size();
       response.details = formatPattern("GET EMPLOYEES given CUSTOMER_CODE", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
+  @GetMapping("front/getEmployeesMasked/{customerCode}")
+  EmployeesResponse getEmployeeMaskedGivenCustomerCode(@PathVariable String customerCode) {
+    EmployeesResponse response = new EmployeesResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      response.employeesDtoList = dataMaskingFacade.getEmployeeMaskedByCustomerCode(customerCode);
+      stopwatch.stop();
+      response.size = response.employeesList.size();
+      response.details = formatPattern("GET EMPLOYEES MASKED given CUSTOMER_CODE", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();

@@ -1,4 +1,4 @@
-package com.tesi.datamasking.data.web.datamasking;
+package com.tesi.datamasking.web;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.TestFacade;

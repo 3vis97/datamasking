@@ -11,6 +11,7 @@ import com.tesi.datamasking.data.db.employees.EmployeesDto;
 import com.tesi.datamasking.data.db.employees.EmployeesRepository;
 import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.db.payslips.Payslips;
+import com.tesi.datamasking.data.db.payslips.PayslipsDto;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import com.tesi.datamasking.exception.EmployeeNotFoundException;
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class DataMaskingFacade extends CoreFacade {
 
@@ -82,8 +85,8 @@ public class DataMaskingFacade extends CoreFacade {
     return employeesRepository.findAll();
   }
 
-  public List<Payslips> getAllPayslips() {
-    return payslipsRepository.findAll();
+  public List<PayslipsDto> getAllPayslips() {
+    return mapper.mapPayslipsList(payslipsRepository.findAll());
   }
 
   public Payslips getSinglePayslip(String employeeCode,
@@ -97,11 +100,46 @@ public class DataMaskingFacade extends CoreFacade {
           MessageFormat.format("Employee with code ({0}) month ({1}) year ({2}) not found", employeeCode, month, year));
   }
 
-  public List<Payslips> getPayslips(String employeeCode) {
-    return payslipsRepository.findByKeyEmployeeCode(employeeCode);
+  public List<PayslipsDto> getPayslips(String employeeCode) {
+    return mapper.mapPayslipsList(payslipsRepository.findByKeyEmployeeCode(employeeCode));
   }
 
-  public List<Payslips> getPayslipsGivenAmount(String employeeCode,
+  public List<PayslipsDto> getPayslipsMaskedGivenAmount(String employeeCode,
+      BigDecimal amount,
+      String operator) throws Exception {
+    List<PayslipsDto> payslipsList = getDecryptedPayslipsDtos(payslipsRepository.findByKeyEmployeeCode(employeeCode));
+    return getPayslipsGivenAmountInList(payslipsList, amount, operator);
+  }
+
+  public List<PayslipsDto> getPayslipsGivenAmountInList(List<PayslipsDto> list,
+      BigDecimal amount,
+      String operator)
+      throws Exception {
+    Predicate<PayslipsDto> byAmount = null;
+    switch (operator) {
+    case "<":
+      byAmount = payslips -> payslips.amount.compareTo(amount) < 0;
+      break;
+    case "<=":
+      byAmount = payslips -> payslips.amount.compareTo(amount) <= 0;
+      break;
+    case "=":
+      byAmount = payslips -> payslips.amount.compareTo(amount) == 0;
+      break;
+    case ">":
+      byAmount = payslips -> payslips.amount.compareTo(amount) > 0;
+      break;
+    case ">=":
+      byAmount = payslips -> payslips.amount.compareTo(amount) >= 0;
+      break;
+    default:
+      throw new Exception("Invalid operator: " + operator);
+    }
+    return list.stream().filter(byAmount).collect(Collectors.toList());
+
+  }
+
+  public List<PayslipsDto> getPayslipsGivenAmount(String employeeCode,
       BigDecimal amount,
       String operator) {
     List<Payslips> payslipsList = new ArrayList<>();
@@ -123,7 +161,7 @@ public class DataMaskingFacade extends CoreFacade {
       payslipsList = payslipsRepository.findByKeyEmployeeCodeAndAmountGreaterThanEqual(employeeCode, amount);
       break;
     }
-    return payslipsList;
+    return mapper.mapPayslipsList(payslipsList);
   }
 
   public void deleteAllEmployees() {
@@ -166,22 +204,6 @@ public class DataMaskingFacade extends CoreFacade {
     decryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
   }
 
-  //  public void cryptAllPayslips(PseudonymizationSetup setup)
-  //      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-  //      IllegalBlockSizeException {
-  //    Stopwatch stopwatch = Stopwatch.createStarted();
-  //    List<Payslips> allPayslips = getAllPayslips();
-  //    stopwatch.stop();
-  //    LOGGER.info("cryptAllPayslips QUERY-GETALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-  //    stopwatch.reset();
-  //    stopwatch.start();
-  //    for (Object payslip : allPayslips) {
-  //      cryptSingleEntity(setup, payslip, payslipsRepository);
-  //    }
-  //    stopwatch.stop();
-  //    LOGGER.info("cryptAllPayslips CRYPTALL completed in " + stopwatch.elapsed(TimeUnit.MILLISECONDS));
-  //  }
-
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws Exception {
     Pageable pageRequest = PageRequest.of(0, 960);
@@ -199,6 +221,8 @@ public class DataMaskingFacade extends CoreFacade {
       onePage = payslipsRepository.findAll(pageRequest);
     }
     payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
+    newUpdatedPayslips = null;
+    System.gc();
   }
 
   public void decryptAllPayslips(PseudonymizationSetup setup)
@@ -219,7 +243,8 @@ public class DataMaskingFacade extends CoreFacade {
       onePage = payslipsRepository.findAll(pageRequest);
     }
     payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
-
+    newUpdatedPayslips = null;
+    System.gc();
   }
 
   private void cryptSingleEntity(PseudonymizationSetup setup,
@@ -249,8 +274,6 @@ public class DataMaskingFacade extends CoreFacade {
       throws Exception {
     decryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
   }
-
-
 
   public void performVoidEmployeeUpdate(String employeeCode) {
     employeesRepository.save(employeesRepository.findById(employeeCode).get());
@@ -289,12 +312,26 @@ public class DataMaskingFacade extends CoreFacade {
 
   public List<EmployeesDto> getEmployeeMaskedByFirstNameAndLastName(String name,
       String lastName) throws Exception {
-    DataCrypt nameDataCrypt = CustomUtils.getDataCrypt(Employees.class, name);
-    DataCrypt lastNameDataCrypt = CustomUtils.getDataCrypt(Employees.class, lastName);
+    DataCrypt nameDataCrypt = CustomUtils.getDataCrypt(Employees.class, "firstName");
+    DataCrypt lastNameDataCrypt = CustomUtils.getDataCrypt(Employees.class, "lastName");
     String nameEncrypted = cryptDecrypt.encryptFieldString(name, nameDataCrypt);
     String lastNameEncrypted = cryptDecrypt.encryptFieldString(lastName, lastNameDataCrypt);
 
     List<Employees> result = employeesRepository.findByFirstNameAndLastName(nameEncrypted, lastNameEncrypted);
+    return getDecryptedEmployeesDtos(result);
+  }
+
+  private List<PayslipsDto> getDecryptedPayslipsDtos(List<Payslips> result) throws Exception {
+    List<PayslipsDto> decryptedResult = new ArrayList<>();
+
+    for (Payslips payslip : result) {
+      cryptDecrypt.decryptClass(payslip);
+      decryptedResult.add(mapper.mapPayslips(payslip));
+    }
+    return decryptedResult;
+  }
+
+  private List<EmployeesDto> getDecryptedEmployeesDtos(List<Employees> result) throws Exception {
     List<EmployeesDto> decryptedResult = new ArrayList<>();
 
     for (Employees employee : result) {
@@ -306,6 +343,11 @@ public class DataMaskingFacade extends CoreFacade {
 
   public List<Employees> getEmployeeByCustomerCode(String customerCode) {
     return employeesRepository.findByCustomers_CustomerCode(customerCode);
+  }
+
+  public List<EmployeesDto> getEmployeeMaskedByCustomerCode(String customerCode) throws Exception {
+    List<Employees> result = employeesRepository.findByCustomers_CustomerCode(customerCode);
+    return getDecryptedEmployeesDtos(result);
   }
 
   @Transactional

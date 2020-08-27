@@ -1,12 +1,10 @@
-package com.tesi.datamasking.data.web.datamasking;
+package com.tesi.datamasking.web;
 
 import com.google.common.base.Stopwatch;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
-@RestController
 public class CoreController {
 
   protected String formatPattern(String method,
