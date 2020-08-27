@@ -7,14 +7,6 @@ import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
 import static org.hamcrest.CoreMatchers.is;
 
 class AesTest {
@@ -25,8 +17,7 @@ class AesTest {
 
     @Test
     public void check_decryption()
-        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+        throws Exception {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3plofmv";
 
@@ -42,8 +33,7 @@ class AesTest {
 
     @Test
     public void check_length()
-        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+        throws Exception {
       String key1 = "12Cd#94qpz!%4/(0"; //16 length
       String key2 = "353fwafwg3plofmv"; //16 length
 
@@ -61,8 +51,7 @@ class AesTest {
 
     @Test
     public void check_length_2()
-        throws NoSuchPaddingException, UnsupportedEncodingException, NoSuchAlgorithmException,
-        IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+        throws Exception {
       String key1 = StringUtils.repeat("*", 16);
       String key2 = StringUtils.repeat("*", 16);
 

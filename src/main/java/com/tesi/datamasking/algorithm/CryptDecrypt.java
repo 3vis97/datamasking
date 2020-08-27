@@ -5,14 +5,10 @@ import com.tesi.datamasking.algorithm.fpe.FPE;
 import com.tesi.datamasking.algorithm.fpe.custom.EnumChar;
 import com.tesi.datamasking.context.DataCrypt;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
@@ -30,8 +26,7 @@ public class CryptDecrypt {
 
   public void cryptClass(Object classToCrypt,
       List<String> fieldsToCrypt)
-      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException {
+      throws Exception {
     Field[] classFields = classToCrypt.getClass().getFields();
     for (Field field : classFields) {
       if (fieldsToCrypt.contains(field.getName())) {
@@ -74,8 +69,7 @@ public class CryptDecrypt {
 
   public void decryptClass(Object classToDecrypt,
       List<String> fieldsToDecrypt)
-      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException {
+      throws Exception {
     Field[] classFields = classToDecrypt.getClass().getFields();
     for (Field field : classFields) {
       if (fieldsToDecrypt.contains(field.getName())) {

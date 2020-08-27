@@ -2,9 +2,11 @@ package com.tesi.datamasking.data.db.payslips;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Transactional
 public interface PayslipsRepository extends JpaRepository<Payslips, PayslipKey>, CustomPayslipsRepository {
 
   List<Payslips> findByKeyEmployeeCode(String employeeCode);

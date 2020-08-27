@@ -38,10 +38,15 @@ public class Aes {
    * @throws IllegalBlockSizeException
    */
   public String encrypt(String toBeEncrypt) throws
-      InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
-    cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
-    byte[] encrypted = cipher.doFinal(toBeEncrypt.getBytes());
-    return Base64.getMimeEncoder().encodeToString(encrypted);
+      Exception {
+    try {
+      cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+      byte[] encryptedValue = cipher.doFinal(toBeEncrypt.getBytes(StandardCharsets.UTF_8));
+      byte[] encodedValue = Base64.getEncoder().encode(encryptedValue);
+      return new String(encodedValue, StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new Exception("ENCRYPT EXCEPTION while encrypting " + toBeEncrypt + " - Details: " + e.toString());
+    }
   }
 
   /**
@@ -55,10 +60,15 @@ public class Aes {
    * @throws BadPaddingException
    * @throws IllegalBlockSizeException
    */
-  public String decrypt(String encrypted) throws InvalidAlgorithmParameterException, InvalidKeyException,
-      BadPaddingException, IllegalBlockSizeException {
-    cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
-    byte[] decryptedBytes = cipher.doFinal(Base64.getMimeDecoder().decode(encrypted));
-    return new String(decryptedBytes);
+  public String decrypt(String encrypted) throws Exception {
+    try {
+      cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+      byte[] decodedValue = Base64.getDecoder().decode(encrypted.getBytes(StandardCharsets.UTF_8));
+      byte[] decryptedValue = cipher.doFinal(decodedValue);
+      return new String(decryptedValue, StandardCharsets.UTF_8);
+    } catch (Exception e) {
+      throw new Exception("DECRYPT EXCEPTION while decrypt " + encrypted + " - Details: " + e.toString());
+    }
+
   }
 }

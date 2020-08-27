@@ -9,11 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import java.math.BigDecimal;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,16 +64,14 @@ public class TestFacade extends CoreFacade {
 
   public void decryptAmount(String code,
       PseudonymizationSetup setup)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     Amounts amountsToDecrypt = amountsRepository.findById(code).get();
     decryptSingleEntity(setup, amountsToDecrypt, amountsRepository, cryptDecrypt);
   }
 
   public void cryptAmount(String code,
       PseudonymizationSetup setup)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     Amounts amountsToCrypt = amountsRepository.findById(code).get();
     cryptSingleEntity(setup, amountsToCrypt, amountsRepository, cryptDecrypt);
   }

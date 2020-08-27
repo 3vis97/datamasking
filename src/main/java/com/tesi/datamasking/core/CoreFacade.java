@@ -4,10 +4,6 @@ import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.util.Arrays;
 
 public class CoreFacade {
@@ -16,8 +12,7 @@ public class CoreFacade {
       Object entity,
       JpaRepository repository,
       CryptDecrypt cryptDecrypt)
-      throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException, IllegalAccessException {
+      throws Exception {
     cryptDecrypt.decryptClass(entity, Arrays.asList(setup.fields));
     repository.save(entity);
   }
@@ -26,8 +21,7 @@ public class CoreFacade {
       Object entity,
       JpaRepository repository,
       CryptDecrypt cryptDecrypt)
-      throws IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException, IllegalAccessException {
+      throws Exception {
     cryptDecrypt.cryptClass(entity, Arrays.asList(setup.fields));
     repository.save(entity);
   }
@@ -36,8 +30,7 @@ public class CoreFacade {
       Object entity,
       JpaRepository repository,
       CryptDecrypt cryptDecrypt)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     cryptDecrypt.cryptClass(entity, Arrays.asList(setup.fields));
     return entity;
   }
@@ -46,8 +39,7 @@ public class CoreFacade {
       Object entity,
       JpaRepository repository,
       CryptDecrypt cryptDecrypt)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     cryptDecrypt.decryptClass(entity, Arrays.asList(setup.fields));
     return entity;
   }

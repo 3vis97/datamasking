@@ -18,14 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,8 +132,7 @@ public class DataMaskingFacade extends CoreFacade {
   }
 
   public void cryptAllEmployees(PseudonymizationSetup setup)
-      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException {
+      throws Exception {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
       decryptSingleEntity(setup, employee, employeesRepository);
@@ -144,8 +140,7 @@ public class DataMaskingFacade extends CoreFacade {
   }
 
   public void decryptAllEmployees(PseudonymizationSetup setup)
-      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException {
+      throws Exception {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
       cryptSingleEntity(setup, employee, employeesRepository);
@@ -154,15 +149,13 @@ public class DataMaskingFacade extends CoreFacade {
 
   public void cryptSingleEmployee(PseudonymizationSetup setup,
       String id)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     cryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
   }
 
   public void decryptSingleEmployee(PseudonymizationSetup setup,
       String id)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     decryptSingleEntity(setup, employeesRepository.findById(id).get(), employeesRepository);
   }
 
@@ -183,8 +176,7 @@ public class DataMaskingFacade extends CoreFacade {
   //  }
 
   public void cryptAllPayslips(PseudonymizationSetup setup)
-      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException {
+      throws Exception {
     Pageable pageRequest = PageRequest.of(0, 960);
     Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
     List<Payslips> newUpdatedPayslips = new ArrayList<>();
@@ -203,9 +195,8 @@ public class DataMaskingFacade extends CoreFacade {
   }
 
   public void decryptAllPayslips(PseudonymizationSetup setup)
-      throws IllegalAccessException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException {
-    Pageable pageRequest = PageRequest.of(0, 960);
+      throws Exception {
+    Pageable pageRequest = PageRequest.of(0, 960, Sort.Direction.ASC, "key.employeeCode");
     Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
     List<Payslips> newUpdatedPayslips = new ArrayList<>();
 
@@ -227,8 +218,7 @@ public class DataMaskingFacade extends CoreFacade {
   private void cryptSingleEntity(PseudonymizationSetup setup,
       Object entity,
       JpaRepository repository)
-      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException {
+      throws Exception {
     cryptDecrypt.cryptClass(entity, Arrays.asList(setup.fields));
     repository.save(entity);
   }
@@ -236,23 +226,20 @@ public class DataMaskingFacade extends CoreFacade {
   private void decryptSingleEntity(PseudonymizationSetup setup,
       Object entity,
       JpaRepository repository)
-      throws IllegalAccessException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
-      InvalidKeyException {
+      throws Exception {
     cryptDecrypt.decryptClass(entity, Arrays.asList(setup.fields));
     repository.save(entity);
   }
 
   public void cryptSinglePayslip(PseudonymizationSetup setup,
       PayslipKey id)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     cryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
   }
 
   public void decryptSinglePayslip(PseudonymizationSetup setup,
       PayslipKey id)
-      throws InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException,
-      IllegalAccessException {
+      throws Exception {
     decryptSingleEntity(setup, payslipsRepository.findById(id).get(), payslipsRepository);
   }
 
