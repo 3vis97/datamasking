@@ -4,10 +4,12 @@ import com.github.javafaker.Faker;
 import com.tesi.datamasking.algorithm.CryptDecrypt;
 import com.tesi.datamasking.core.DataMaskingFacade;
 import com.tesi.datamasking.core.TestFacade;
+import com.tesi.datamasking.data.db.DataEntityMapper;
 import com.tesi.datamasking.data.db.amounts.AmountsRepository;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
 import com.tesi.datamasking.data.db.employees.EmployeesRepository;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,8 +27,10 @@ public class DataMaskingRestConfig {
       PayslipsRepository payslipsRepository,
       CustomersRepository customersRepository,
       Faker faker,
-      CryptDecrypt cryptDecrypt) {
-    return new DataMaskingFacade(employeesRepository, payslipsRepository, customersRepository, faker, cryptDecrypt);
+      CryptDecrypt cryptDecrypt,
+      DataEntityMapper mapper) {
+    return new DataMaskingFacade(employeesRepository, payslipsRepository, customersRepository, faker, cryptDecrypt,
+        mapper);
   }
 
   @Bean
@@ -46,6 +50,11 @@ public class DataMaskingRestConfig {
       Faker faker,
       CryptDecrypt cryptDecrypt) {
     return new TestFacade(amountsRepository, faker, cryptDecrypt);
+  }
+
+  @Bean
+  public DataEntityMapper mapper() {
+    return Mappers.getMapper(DataEntityMapper.class);
   }
 
 }

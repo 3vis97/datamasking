@@ -2,15 +2,19 @@ package com.tesi.datamasking.core;
 
 import com.github.javafaker.Faker;
 import com.tesi.datamasking.algorithm.CryptDecrypt;
+import com.tesi.datamasking.context.DataCrypt;
+import com.tesi.datamasking.data.db.DataEntityMapper;
 import com.tesi.datamasking.data.db.customers.Customers;
 import com.tesi.datamasking.data.db.customers.CustomersRepository;
 import com.tesi.datamasking.data.db.employees.Employees;
+import com.tesi.datamasking.data.db.employees.EmployeesDto;
 import com.tesi.datamasking.data.db.employees.EmployeesRepository;
 import com.tesi.datamasking.data.db.payslips.PayslipKey;
 import com.tesi.datamasking.data.db.payslips.Payslips;
 import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import com.tesi.datamasking.exception.EmployeeNotFoundException;
+import com.tesi.datamasking.util.CustomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,7 @@ public class DataMaskingFacade extends CoreFacade {
   private final CustomersRepository customersRepository;
   private final Faker faker;
   private final CryptDecrypt cryptDecrypt;
+  private final DataEntityMapper mapper;
 
   private int customerId = 1;
   private int employeeId = 1;
@@ -47,12 +52,14 @@ public class DataMaskingFacade extends CoreFacade {
       PayslipsRepository payslipsRepository,
       CustomersRepository customersRepository,
       Faker faker,
-      CryptDecrypt cryptDecrypt) {
+      CryptDecrypt cryptDecrypt,
+      DataEntityMapper mapper) {
     this.payslipsRepository = payslipsRepository;
     this.employeesRepository = employeesRepository;
     this.customersRepository = customersRepository;
     this.faker = faker;
     this.cryptDecrypt = cryptDecrypt;
+    this.mapper = mapper;
   }
 
   private Employees saveEmployee(Employees employee) {
@@ -278,6 +285,23 @@ public class DataMaskingFacade extends CoreFacade {
   public List<Employees> getEmployeeByFirstNameAndLastName(String name,
       String lastName) {
     return employeesRepository.findByFirstNameAndLastName(name, lastName);
+  }
+
+  public List<EmployeesDto> getEmployeeMaskedByFirstNameAndLastName(String name,
+      String lastName) throws Exception {
+    DataCrypt nameDataCrypt = CustomUtils.getDataCrypt(Employees.class, name);
+    DataCrypt lastNameDataCrypt = CustomUtils.getDataCrypt(Employees.class, lastName);
+    String nameEncrypted = cryptDecrypt.encryptFieldString(name, nameDataCrypt);
+    String lastNameEncrypted = cryptDecrypt.encryptFieldString(lastName, lastNameDataCrypt);
+
+    List<Employees> result = employeesRepository.findByFirstNameAndLastName(nameEncrypted, lastNameEncrypted);
+    List<EmployeesDto> decryptedResult = new ArrayList<>();
+
+    for (Employees employee : result) {
+      cryptDecrypt.decryptClass(employee);
+      decryptedResult.add(mapper.mapEmployees(employee));
+    }
+    return decryptedResult;
   }
 
   public List<Employees> getEmployeeByCustomerCode(String customerCode) {

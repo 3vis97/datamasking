@@ -137,6 +137,23 @@ public class FrontEndController extends CoreController {
     return response;
   }
 
+  @GetMapping("front/getEmployeeMasked/{name}/{lastName}")
+  EmployeesResponse getEmployeeMaskedGivenNameAndLastName(@PathVariable String name,
+      @PathVariable String lastName) {
+    EmployeesResponse response = new EmployeesResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      response.employeesDtoList = dataMaskingFacade.getEmployeeMaskedByFirstNameAndLastName(name, lastName);
+      stopwatch.stop();
+      response.size = response.employeesList.size();
+      response.details = formatPattern("GET EMPLOYEE given FIRST NAME and LAST NAME", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
   @GetMapping("front/getEmployees/{customerCode}")
   EmployeesResponse getEmployeeGivenCustomerCode(@PathVariable String customerCode) {
     EmployeesResponse response = new EmployeesResponse();
