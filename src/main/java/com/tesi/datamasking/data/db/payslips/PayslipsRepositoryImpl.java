@@ -35,6 +35,8 @@ public class PayslipsRepositoryImpl implements CustomPayslipsRepository {
         entityTransaction.begin();
       }
     }
+    entityManager.flush();
+    entityManager.clear();
     entityTransaction.commit();
   }
 
@@ -55,6 +57,8 @@ public class PayslipsRepositoryImpl implements CustomPayslipsRepository {
         entityTransaction.begin();
       }
     }
+    entityManager.flush();
+    entityManager.clear();
     entityTransaction.commit();
   }
 }
