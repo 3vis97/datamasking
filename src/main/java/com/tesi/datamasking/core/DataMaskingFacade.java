@@ -89,12 +89,23 @@ public class DataMaskingFacade extends CoreFacade {
     return mapper.mapPayslipsList(payslipsRepository.findAll());
   }
 
-  public Payslips getSinglePayslip(String employeeCode,
+  public PayslipsDto getSinglePayslip(String employeeCode,
       int month,
       int year) throws EmployeeNotFoundException {
     Optional<Payslips> payslip = payslipsRepository.findById(new PayslipKey(employeeCode, month, year));
     if (payslip.isPresent())
-      return payslip.get();
+      return mapper.mapPayslips(payslip.get());
+    else
+      throw new EmployeeNotFoundException(
+          MessageFormat.format("Employee with code ({0}) month ({1}) year ({2}) not found", employeeCode, month, year));
+  }
+
+  public PayslipsDto getSingleMaskedPayslip(String employeeCode,
+      int month,
+      int year) throws Exception {
+    Optional<Payslips> payslip = payslipsRepository.findById(new PayslipKey(employeeCode, month, year));
+    if (payslip.isPresent())
+      return getDecryptedPayslips(payslip.get());
     else
       throw new EmployeeNotFoundException(
           MessageFormat.format("Employee with code ({0}) month ({1}) year ({2}) not found", employeeCode, month, year));
@@ -102,6 +113,12 @@ public class DataMaskingFacade extends CoreFacade {
 
   public List<PayslipsDto> getPayslips(String employeeCode) {
     return mapper.mapPayslipsList(payslipsRepository.findByKeyEmployeeCode(employeeCode));
+  }
+
+  public List<PayslipsDto> getPayslipsMasked(String employeeCode) throws Exception {
+    List<Payslips> payslipsList = payslipsRepository.findByKeyEmployeeCode(employeeCode);
+    return getDecryptedPayslipsDtos(payslipsList);
+
   }
 
   public List<PayslipsDto> getPayslipsMaskedGivenAmount(String employeeCode,
@@ -329,6 +346,11 @@ public class DataMaskingFacade extends CoreFacade {
       decryptedResult.add(mapper.mapPayslips(payslip));
     }
     return decryptedResult;
+  }
+
+  private PayslipsDto getDecryptedPayslips(Payslips payslips) throws Exception {
+    cryptDecrypt.decryptClass(payslips);
+    return mapper.mapPayslips(payslips);
   }
 
   private List<EmployeesDto> getDecryptedEmployeesDtos(List<Employees> result) throws Exception {

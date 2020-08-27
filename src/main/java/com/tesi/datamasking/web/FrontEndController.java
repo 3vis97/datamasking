@@ -30,6 +30,7 @@ public class FrontEndController extends CoreController {
     this.dataMaskingFacade = dataMaskingFacade;
   }
 
+  //region QUERY PAYSLIPS - (A)
   @GetMapping("front/getPayslip/{code}/{month}/{year}")
   PayslipsResponse getPayslip(@PathVariable String code,
       @PathVariable String month,
@@ -47,24 +48,26 @@ public class FrontEndController extends CoreController {
     return response;
   }
 
-  @GetMapping("front/getPayslips")
-  PayslipsResponse getPayslips() {
+  @GetMapping("front/getPayslipMasked/{code}/{month}/{year}")
+  PayslipsResponse getPayslipMasked(@PathVariable String code,
+      @PathVariable String month,
+      @PathVariable String year) {
     PayslipsResponse response = new PayslipsResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      List<PayslipsDto> payslipsList = dataMaskingFacade.getAllPayslips();
+      response.payslip = dataMaskingFacade
+          .getSingleMaskedPayslip(code, Integer.parseInt(month), Integer.parseInt(year));
       stopwatch.stop();
-      if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
-        response.payslipList = payslipsList;
-      response.size = payslipsList.size();
-      response.details = formatPattern("GET ALL PAYSLIPS", stopwatch);
+      response.details = formatPattern("GET PAYSLIP given CODE, MONTH, YEAR", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
     }
     return response;
   }
+  //endregion
 
+  //region QUERY PAYSLIPS - (B)
   @GetMapping("front/getPayslips/{code}")
   PayslipsResponse getPayslips(@PathVariable String code) {
     PayslipsResponse response = new PayslipsResponse();
@@ -84,6 +87,27 @@ public class FrontEndController extends CoreController {
     return response;
   }
 
+  @GetMapping("front/getPayslipsMasked/{code}")
+  PayslipsResponse getPayslipsMasked(@PathVariable String code) {
+    PayslipsResponse response = new PayslipsResponse();
+
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      List<PayslipsDto> payslipsList = dataMaskingFacade.getPayslipsMasked(code);
+      stopwatch.stop();
+      if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.payslipList = payslipsList;
+      response.size = payslipsList.size();
+      response.details = formatPattern("GET PAYSLIPS MASKED", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+  //endregion
+
+  //region QUERY PAYSLIPS - (C)
   @GetMapping("front/getPayslips/{code}/{amount}/{operator}")
   PayslipsResponse getPayslipGivenAmount(@PathVariable String code,
       @PathVariable BigDecimal amount,
@@ -112,32 +136,16 @@ public class FrontEndController extends CoreController {
       response.payslipList = dataMaskingFacade.getPayslipsMaskedGivenAmount(code, amount, operator);
       stopwatch.stop();
       response.size = response.payslipList.size();
-      response.details = formatPattern("GET PAYSLIP given AMOUNT", stopwatch);
+      response.details = formatPattern("GET PAYSLIP MASKED given AMOUNT", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
     }
     return response;
   }
+  //endregion
 
-  @GetMapping("front/getEmployees")
-  EmployeesResponse getEmployees() {
-    EmployeesResponse response = new EmployeesResponse();
-    try {
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      List<Employees> employeesList = dataMaskingFacade.getAllEmployees();
-      stopwatch.stop();
-      if (employeesList.size() <= MAX_DIMENSION_FOR_OUTPUT)
-        response.employeesList = employeesList;
-      response.size = employeesList.size();
-      response.details = formatPattern("GET ALL EMPLOYEES", stopwatch);
-    } catch (Exception e) {
-      response.success = false;
-      response.error = e.getMessage();
-    }
-    return response;
-  }
-
+  //region QUERY EMPLOYEES - (A)
   @GetMapping("front/getEmployee/{name}/{lastName}")
   EmployeesResponse getEmployeeGivenNameAndLastName(@PathVariable String name,
       @PathVariable String lastName) {
@@ -171,7 +179,9 @@ public class FrontEndController extends CoreController {
     }
     return response;
   }
+  //endregion
 
+  //region QUERY EMPLOYEES - (B)
   @GetMapping("front/getEmployees/{customerCode}")
   EmployeesResponse getEmployeeGivenCustomerCode(@PathVariable String customerCode) {
     EmployeesResponse response = new EmployeesResponse();
@@ -197,6 +207,48 @@ public class FrontEndController extends CoreController {
       stopwatch.stop();
       response.size = response.employeesList.size();
       response.details = formatPattern("GET EMPLOYEES MASKED given CUSTOMER_CODE", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+  //endregion
+
+
+  /*
+    -------------------- OTHER METHODS ------------------------
+   */
+
+  @GetMapping("front/getEmployees")
+  EmployeesResponse getEmployees() {
+    EmployeesResponse response = new EmployeesResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      List<Employees> employeesList = dataMaskingFacade.getAllEmployees();
+      stopwatch.stop();
+      if (employeesList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.employeesList = employeesList;
+      response.size = employeesList.size();
+      response.details = formatPattern("GET ALL EMPLOYEES", stopwatch);
+    } catch (Exception e) {
+      response.success = false;
+      response.error = e.getMessage();
+    }
+    return response;
+  }
+
+  @GetMapping("front/getPayslips")
+  PayslipsResponse getPayslips() {
+    PayslipsResponse response = new PayslipsResponse();
+    try {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      List<PayslipsDto> payslipsList = dataMaskingFacade.getAllPayslips();
+      stopwatch.stop();
+      if (payslipsList.size() <= MAX_DIMENSION_FOR_OUTPUT)
+        response.payslipList = payslipsList;
+      response.size = payslipsList.size();
+      response.details = formatPattern("GET ALL PAYSLIPS", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
