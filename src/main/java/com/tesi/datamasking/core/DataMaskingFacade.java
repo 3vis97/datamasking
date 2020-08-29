@@ -81,8 +81,12 @@ public class DataMaskingFacade extends CoreFacade {
     return customersRepository.save(customer);
   }
 
-  public List<Employees> getAllEmployees() {
+  private List<Employees> getAllEmployees() {
     return employeesRepository.findAll();
+  }
+
+  public List<EmployeesDto> getEmployees() {
+    return mapper.mapEmployeesList(employeesRepository.findAll());
   }
 
   public List<PayslipsDto> getAllPayslips() {
@@ -197,7 +201,7 @@ public class DataMaskingFacade extends CoreFacade {
       throws Exception {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
-      decryptSingleEntity(setup, employee, employeesRepository);
+      cryptSingleEntity(setup, employee, employeesRepository);
     }
   }
 
@@ -205,7 +209,7 @@ public class DataMaskingFacade extends CoreFacade {
       throws Exception {
     List<Employees> allEmployees = getAllEmployees();
     for (Employees employee : allEmployees) {
-      cryptSingleEntity(setup, employee, employeesRepository);
+      decryptSingleEntity(setup, employee, employeesRepository);
     }
   }
 
@@ -322,9 +326,9 @@ public class DataMaskingFacade extends CoreFacade {
     LOGGER.info("...done!");
   }
 
-  public List<Employees> getEmployeeByFirstNameAndLastName(String name,
+  public List<EmployeesDto> getEmployeeByFirstNameAndLastName(String name,
       String lastName) {
-    return employeesRepository.findByFirstNameAndLastName(name, lastName);
+    return mapper.mapEmployeesList(employeesRepository.findByFirstNameAndLastName(name, lastName));
   }
 
   public List<EmployeesDto> getEmployeeMaskedByFirstNameAndLastName(String name,
@@ -363,8 +367,8 @@ public class DataMaskingFacade extends CoreFacade {
     return decryptedResult;
   }
 
-  public List<Employees> getEmployeeByCustomerCode(String customerCode) {
-    return employeesRepository.findByCustomers_CustomerCode(customerCode);
+  public List<EmployeesDto> getEmployeeByCustomerCode(String customerCode) {
+    return mapper.mapEmployeesList(employeesRepository.findByCustomers_CustomerCode(customerCode));
   }
 
   public List<EmployeesDto> getEmployeeMaskedByCustomerCode(String customerCode) throws Exception {

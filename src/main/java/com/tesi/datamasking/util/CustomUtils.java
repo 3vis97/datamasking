@@ -6,9 +6,9 @@ import java.lang.reflect.Field;
 
 public class CustomUtils {
 
-  public static DataCrypt getDataCrypt(Object clazzToScan,
+  public static DataCrypt getDataCrypt(Class clazzToScan,
       String fieldName) throws Exception {
-    Field[] classFields = clazzToScan.getClass().getFields();
+    Field[] classFields = clazzToScan.getFields();
     for (Field field : classFields) {
       if (field.getName().equals(fieldName))
         if (field.isAnnotationPresent(DataCrypt.class)) {

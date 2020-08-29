@@ -28,16 +28,18 @@ public class Employees {
   @DataCrypt
   public String lastName;
 
+  @DataCrypt(dataType = DataCrypt.DataType.PHONE)
   public String phone;
 
   @DataCrypt(dataType = DataCrypt.DataType.EMAIL)
   public String email;
 
+  @DataCrypt(dataType = DataCrypt.DataType.UNICODE)
   public String address;
 
+  @DataCrypt(dataType = DataCrypt.DataType.UNICODE)
   public String city;
 
-  @DataCrypt(dataType = DataCrypt.DataType.NUMBER)
   public Integer zipCode;
 
   @OneToMany(mappedBy = "employees")

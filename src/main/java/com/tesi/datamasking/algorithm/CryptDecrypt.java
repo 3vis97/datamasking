@@ -28,7 +28,7 @@ public class CryptDecrypt {
       DataCrypt dataCryptInstance) throws Exception {
     String fieldDecrypted = "";
 
-    if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
+    if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING)) {
       if (!fpe.getEnumChar().equals(EnumChar.CUSTOM))
         fpe.useCustomCharset();
       fieldDecrypted = fpe.decryptString(fieldValue);
@@ -38,6 +38,14 @@ public class CryptDecrypt {
       fieldDecrypted = fpe.decryptEmail(fieldValue);
     } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.LONG_STRING)) {
       fieldDecrypted = aes.decrypt(fieldValue);
+    } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.PHONE)) {
+      if (!fpe.getEnumChar().equals(EnumChar.PHONE))
+        fpe.usePhoneCharset();
+      fieldDecrypted = fpe.decryptString(fieldValue);
+    } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.UNICODE)) {
+      if (!fpe.getEnumChar().equals(EnumChar.UNICODE))
+        fpe.useUnicodeCharset();
+      fieldDecrypted = fpe.decryptString(fieldValue);
     }
     return fieldDecrypted;
   }
@@ -46,7 +54,7 @@ public class CryptDecrypt {
       DataCrypt dataCryptInstance) throws Exception {
     String fieldEncrypted = "";
 
-    if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
+    if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING)) {
       if (!fpe.getEnumChar().equals(EnumChar.CUSTOM))
         fpe.useCustomCharset();
       fieldEncrypted = fpe.encryptString(fieldValue);
@@ -56,6 +64,14 @@ public class CryptDecrypt {
       fieldEncrypted = fpe.encryptEmail(fieldValue);
     } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.LONG_STRING)) {
       fieldEncrypted = aes.encrypt(fieldValue);
+    } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.PHONE)) {
+      if (!fpe.getEnumChar().equals(EnumChar.PHONE))
+        fpe.usePhoneCharset();
+      fieldEncrypted = fpe.encryptString(fieldValue);
+    } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.UNICODE)) {
+      if (!fpe.getEnumChar().equals(EnumChar.UNICODE))
+        fpe.useUnicodeCharset();
+      fieldEncrypted = fpe.encryptString(fieldValue);
     }
     return fieldEncrypted;
   }
@@ -69,7 +85,7 @@ public class CryptDecrypt {
         field.setAccessible(true);
         if (field.isAnnotationPresent(DataCrypt.class)) {
           DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
+          if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING)) {
             if (field.getType().equals(String.class)) {
               if (!fpe.getEnumChar().equals(EnumChar.CUSTOM))
                 fpe.useCustomCharset();
@@ -97,6 +113,18 @@ public class CryptDecrypt {
                 fpe.useNumericCharset();
               field.set(classToCrypt, fpe.encryptAmount((BigDecimal) field.get(classToCrypt)));
             }
+          } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.PHONE)) {
+            if (field.getType().equals(String.class)) {
+              if (!fpe.getEnumChar().equals(EnumChar.PHONE))
+                fpe.usePhoneCharset();
+              field.set(classToCrypt, fpe.encryptString(field.get(classToCrypt).toString()));
+            }
+          } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.UNICODE)) {
+            if (field.getType().equals(String.class)) {
+              if (!fpe.getEnumChar().equals(EnumChar.UNICODE))
+                fpe.useUnicodeCharset();
+              field.set(classToCrypt, fpe.encryptString(field.get(classToCrypt).toString()));
+            }
           }
         }
       }
@@ -119,7 +147,7 @@ public class CryptDecrypt {
     field.setAccessible(true);
     if (field.isAnnotationPresent(DataCrypt.class)) {
       DataCrypt dataCryptInstance = field.getAnnotation(DataCrypt.class);
-      if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_UNICODE)) {
+      if (dataCryptInstance.dataType().equals(DataCrypt.DataType.DEFAULT_STRING)) {
         if (field.getType().equals(String.class)) {
           if (!fpe.getEnumChar().equals(EnumChar.CUSTOM))
             fpe.useCustomCharset();
@@ -146,6 +174,18 @@ public class CryptDecrypt {
           if (!fpe.getEnumChar().equals(EnumChar.NUMBER))
             fpe.useNumericCharset();
           field.set(classToDecrypt, fpe.decryptAmount((BigDecimal) field.get(classToDecrypt)));
+        }
+      } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.PHONE)) {
+        if (field.getType().equals(String.class)) {
+          if (!fpe.getEnumChar().equals(EnumChar.PHONE))
+            fpe.usePhoneCharset();
+          field.set(classToDecrypt, fpe.decryptString(field.get(classToDecrypt).toString()));
+        }
+      } else if (dataCryptInstance.dataType().equals(DataCrypt.DataType.UNICODE)) {
+        if (field.getType().equals(String.class)) {
+          if (!fpe.getEnumChar().equals(EnumChar.UNICODE))
+            fpe.useUnicodeCharset();
+          field.set(classToDecrypt, fpe.decryptString(field.get(classToDecrypt).toString()));
         }
       }
     }

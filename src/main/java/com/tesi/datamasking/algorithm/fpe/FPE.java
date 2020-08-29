@@ -9,6 +9,7 @@ import com.tesi.datamasking.algorithm.fpe.custom.CustomChar;
 import com.tesi.datamasking.algorithm.fpe.custom.EmailChar;
 import com.tesi.datamasking.algorithm.fpe.custom.EnumChar;
 import com.tesi.datamasking.algorithm.fpe.custom.NumericChar;
+import com.tesi.datamasking.algorithm.fpe.custom.PhoneChar;
 import com.tesi.datamasking.algorithm.fpe.custom.UnicodeChar;
 import org.apache.commons.lang3.StringUtils;
 
@@ -102,15 +103,28 @@ public class FPE {
     enumChar = EnumChar.NUMBER;
   }
 
+  public void usePhoneCharset() {
+    PhoneChar phoneChar = new PhoneChar();
+    formatPreservingEncryption = FormatPreservingEncryptionBuilder
+        .ff1Implementation()
+        .withDomain(new GenericDomain(
+            phoneChar, new GenericTransformations(phoneChar.availableCharacters()), new GenericTransformations(
+            phoneChar.availableCharacters())))
+        .withDefaultPseudoRandomFunction(KEY_1.getBytes())
+        .withDefaultLengthRange()
+        .build();
+    enumChar = EnumChar.PHONE;
+  }
+
   public String encryptString(String stringToEncrypt) {
-      return formatPreservingEncryption.encrypt(stringToEncrypt, KEY_2.getBytes());
+    return formatPreservingEncryption.encrypt(stringToEncrypt, KEY_2.getBytes());
   }
 
   public String decryptString(String stringToDecrypt) {
     return formatPreservingEncryption.decrypt(stringToDecrypt, KEY_2.getBytes());
   }
 
-  public Integer encryptInt(Integer integer){
+  public Integer encryptInt(Integer integer) {
     return Integer.valueOf(formatPreservingEncryption.encrypt(integer.toString(), KEY_2.getBytes()));
   }
 

@@ -2,7 +2,7 @@ package com.tesi.datamasking.web;
 
 import com.google.common.base.Stopwatch;
 import com.tesi.datamasking.core.DataMaskingFacade;
-import com.tesi.datamasking.data.db.employees.Employees;
+import com.tesi.datamasking.data.db.employees.EmployeesDto;
 import com.tesi.datamasking.data.db.payslips.PayslipsDto;
 import com.tesi.datamasking.data.dto.response.EmployeesResponse;
 import com.tesi.datamasking.data.dto.response.PayslipsResponse;
@@ -152,9 +152,9 @@ public class FrontEndController extends CoreController {
     EmployeesResponse response = new EmployeesResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      response.employeesList = dataMaskingFacade.getEmployeeByFirstNameAndLastName(name, lastName);
+      response.employeesDtoList = dataMaskingFacade.getEmployeeByFirstNameAndLastName(name, lastName);
       stopwatch.stop();
-      response.size = response.employeesList.size();
+      response.size = response.employeesDtoList.size();
       response.details = formatPattern("GET EMPLOYEE given FIRST NAME and LAST NAME", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -171,7 +171,7 @@ public class FrontEndController extends CoreController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       response.employeesDtoList = dataMaskingFacade.getEmployeeMaskedByFirstNameAndLastName(name, lastName);
       stopwatch.stop();
-      response.size = response.employeesList.size();
+      response.size = response.employeesDtoList.size();
       response.details = formatPattern("GET EMPLOYEE MASKED given FIRST NAME and LAST NAME", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -187,9 +187,9 @@ public class FrontEndController extends CoreController {
     EmployeesResponse response = new EmployeesResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      response.employeesList = dataMaskingFacade.getEmployeeByCustomerCode(customerCode);
+      response.employeesDtoList = dataMaskingFacade.getEmployeeByCustomerCode(customerCode);
       stopwatch.stop();
-      response.size = response.employeesList.size();
+      response.size = response.employeesDtoList.size();
       response.details = formatPattern("GET EMPLOYEES given CUSTOMER_CODE", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -205,7 +205,7 @@ public class FrontEndController extends CoreController {
       Stopwatch stopwatch = Stopwatch.createStarted();
       response.employeesDtoList = dataMaskingFacade.getEmployeeMaskedByCustomerCode(customerCode);
       stopwatch.stop();
-      response.size = response.employeesList.size();
+      response.size = response.employeesDtoList.size();
       response.details = formatPattern("GET EMPLOYEES MASKED given CUSTOMER_CODE", stopwatch);
     } catch (Exception e) {
       response.success = false;
@@ -225,10 +225,10 @@ public class FrontEndController extends CoreController {
     EmployeesResponse response = new EmployeesResponse();
     try {
       Stopwatch stopwatch = Stopwatch.createStarted();
-      List<Employees> employeesList = dataMaskingFacade.getAllEmployees();
+      List<EmployeesDto> employeesList = dataMaskingFacade.getEmployees();
       stopwatch.stop();
       if (employeesList.size() <= MAX_DIMENSION_FOR_OUTPUT)
-        response.employeesList = employeesList;
+        response.employeesDtoList = employeesList;
       response.size = employeesList.size();
       response.details = formatPattern("GET ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {

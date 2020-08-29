@@ -243,7 +243,7 @@ public class DataMaskingController extends CoreController {
       restResponse.details = formatPattern("Crypt ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
-      restResponse.error = e.getMessage();
+      restResponse.error = e.toString();
     }
     return restResponse;
   }
@@ -259,7 +259,7 @@ public class DataMaskingController extends CoreController {
       restResponse.details = formatPattern("Decrypt ALL EMPLOYEES", stopwatch);
     } catch (Exception e) {
       restResponse.success = false;
-      restResponse.error = e.getMessage();
+      restResponse.error = e.toString();
     }
     return restResponse;
   }

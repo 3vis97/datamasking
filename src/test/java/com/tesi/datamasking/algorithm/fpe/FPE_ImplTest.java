@@ -121,6 +121,14 @@ class FPE_ImplTest {
       Assert.assertThat(secretDecrypted, CoreMatchers.is(new BigDecimal(secret)));
     }
 
+    public void printAllAlphaChars() {
+      char[] CHARS = new char[91];
+      //iterate through 65535 chars
+      for (int i = 32; i <= 122; i++) {
+        CHARS[i - 32] = (char) i;
+        System.out.println("CHAR " + (i - 32) + ":" + CHARS[i - 32]);
+      }
+    }
   }
 
 }
