@@ -66,7 +66,7 @@ class FPE_ImplTest {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3ad21414";
 
-      String secret = "a13caBAZè{#@";
+      String secret = "a13caBAZ";
 
       FPE fpe = new FPE(key1, key2);
       fpe.useUnicodeCharset();
