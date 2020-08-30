@@ -16,7 +16,6 @@ import com.tesi.datamasking.data.db.payslips.PayslipsRepository;
 import com.tesi.datamasking.data.dto.PseudonymizationSetup;
 import com.tesi.datamasking.exception.EmployeeNotFoundException;
 import com.tesi.datamasking.util.CustomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,14 +196,6 @@ public class DataMaskingFacade extends CoreFacade {
     customersRepository.deleteAll();
   }
 
-  public void cryptAllEmployees(PseudonymizationSetup setup)
-      throws Exception {
-    List<Employees> allEmployees = getAllEmployees();
-    for (Employees employee : allEmployees) {
-      cryptSingleEntity(setup, employee, employeesRepository);
-    }
-  }
-
   public void decryptAllEmployees(PseudonymizationSetup setup)
       throws Exception {
     List<Employees> allEmployees = getAllEmployees();
@@ -227,7 +218,7 @@ public class DataMaskingFacade extends CoreFacade {
 
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws Exception {
-    Pageable pageRequest = PageRequest.of(0, 9600, Sort.by("employees"));
+    Pageable pageRequest = PageRequest.of(0, 9600, Sort.Direction.ASC, "key.employeeCode");
     Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
     List<Payslips> newUpdatedPayslips = new ArrayList<>();
     int counter = 1;
@@ -236,29 +227,49 @@ public class DataMaskingFacade extends CoreFacade {
       pageRequest = pageRequest.next();
 
       List<Payslips> currentpageList = onePage.getContent();
-      List<Payslips> tempList = new ArrayList<>();
       for (Payslips payslip : currentpageList) {
-        tempList.add(
+        newUpdatedPayslips.add(
             (Payslips) cryptSingleEntityAndReturn(setup, payslip, payslipsRepository, cryptDecrypt));
       }
+
       onePage = payslipsRepository.findAll(pageRequest);
-      System.out.println("Paging... #" + counter++);
-      currentpageList = null;
-      newUpdatedPayslips.addAll(tempList);
-      tempList = null;
-      System.gc();
+      LOGGER.info("Paging... #" + counter++);
     }
-    System.out.println("Updating...");
+    LOGGER.info("Updating...");
     payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
-    newUpdatedPayslips = null;
-    System.gc();
+    LOGGER.info("...done!");
+  }
+
+  public void cryptAllEmployees(PseudonymizationSetup setup)
+      throws Exception {
+    Pageable pageRequest = PageRequest.of(0, 1000);
+    Page<Employees> onePage = employeesRepository.findAll(pageRequest);
+    List<Employees> newUpdatedPayslips = new ArrayList<>();
+    int counter = 1;
+
+    while (!onePage.isEmpty()) {
+      pageRequest = pageRequest.next();
+
+      List<Employees> currentpageList = onePage.getContent();
+      for (Employees payslip : currentpageList) {
+        newUpdatedPayslips.add(
+            (Employees) cryptSingleEntityAndReturn(setup, payslip, payslipsRepository, cryptDecrypt));
+      }
+
+      onePage = employeesRepository.findAll(pageRequest);
+      LOGGER.info("Paging... #" + counter++);
+    }
+    LOGGER.info("Updating...");
+    employeesRepository.updateWithBatchInsert(newUpdatedPayslips);
+    LOGGER.info("...done!");
   }
 
   public void decryptAllPayslips(PseudonymizationSetup setup)
       throws Exception {
-    Pageable pageRequest = PageRequest.of(0, 960, Sort.Direction.ASC, "key.employeeCode");
+    Pageable pageRequest = PageRequest.of(0, 9600, Sort.Direction.ASC, "key.employeeCode");
     Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
     List<Payslips> newUpdatedPayslips = new ArrayList<>();
+    int counter = 1;
 
     while (!onePage.isEmpty()) {
       pageRequest = pageRequest.next();
@@ -270,10 +281,11 @@ public class DataMaskingFacade extends CoreFacade {
       }
 
       onePage = payslipsRepository.findAll(pageRequest);
+      LOGGER.info("Paging... #" + counter++);
     }
+    LOGGER.info("Updating...");
     payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
-    newUpdatedPayslips = null;
-    System.gc();
+    LOGGER.info("...done!");
   }
 
   private void cryptSingleEntity(PseudonymizationSetup setup,
@@ -315,14 +327,15 @@ public class DataMaskingFacade extends CoreFacade {
     List<Payslips> payslipsList = new ArrayList<>();
     LOGGER.info("Starting creating random fake data...");
     for (int i = 0; i < customers; i++) {
-      Customers customerSaved = generateRandomCliente(customerId++);
+      Customers customerSaved = CustomUtils.generateRandomCliente(customerId++, faker);
       customerList.add(customerSaved);
       for (int j = 0; j < employees; j++) {
-        Employees employeeSaved = generateRandomEmployee(customerSaved, employeeId++);
+        Employees employeeSaved = CustomUtils.generateRandomEmployee(customerSaved, employeeId++, faker);
         EnumEmployeeJob enumEmployeeJob = EnumEmployeeJob.getRandomEmployeeJob();
         for (int z = payslip; z > 0; z--) {
           for (int month = 1; month <= 12; month++) {
-            payslipsList.add(generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob));
+            payslipsList
+                .add(CustomUtils.generateRandomPayslip(employeeSaved, month, 2020 - (z - 1), enumEmployeeJob, faker));
           }
         }
       }
@@ -389,101 +402,11 @@ public class DataMaskingFacade extends CoreFacade {
     List<Customers> customerList = new ArrayList<>();
 
     for (int i = 0; i < customers; i++) {
-      Customers customerSaved = generateRandomCliente(customerId++);
+      Customers customerSaved = CustomUtils.generateRandomCliente(customerId++, faker);
       customerList.add(customerSaved);
     }
     customersRepository.insertWithBatchInsert(customerList);
   }
 
-  private Payslips generateRandomPayslip(Employees employee,
-      int month,
-      int year,
-      EnumEmployeeJob enumEmployeeJob) {
-    Payslips payslip = new Payslips();
-    int min = 1;
-    int max = 10;
 
-    payslip.key = new PayslipKey(employee.employeeCode, month, year);
-    payslip.employees = employee;
-    payslip.column1 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column2 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column3 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column4 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column5 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column6 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column7 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column8 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column9 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.column10 = StringUtils.left(randomValue(faker, min, max), 100);
-    payslip.amount = BigDecimal.valueOf(enumEmployeeJob.getBaseAmount());
-    payslip.employeeJob = enumEmployeeJob.name();
-
-    return payslip;
-
-  }
-
-  private String randomValue(Faker faker, int min, int max){
-    int value = getRandomNumber(min, max);
-    switch (value) {
-    case 1: return faker.finance().iban();
-    case 2: return faker.business().creditCardNumber();
-    case 3: return faker.book().author();
-    case 4: return faker.address().city();
-    case 5: return faker.company().profession();
-    case 6: return faker.company().industry();
-    case 7: return faker.beer().name();
-    case 8: return faker.commerce().department();
-    case 9:
-      return faker.name().firstName();
-    case 10:
-      return faker.name().username();
-    default:
-      return faker.name().fullName();
-    }
-  }
-
-  private int getRandomNumber(int min,
-      int max) {
-    return (int) ((Math.random() * (max - min)) + min);
-  }
-
-  private Customers generateRandomCliente(int customerId) {
-    Customers customer = new Customers();
-
-    customer.customerCode = generateNextCustomerCode(customerId);
-    customer.companyName = faker.company().name();
-    customer.zipCode = Integer.parseInt(faker.address().zipCode());
-    customer.city = faker.address().city();
-    customer.address = faker.address().streetAddress();
-    customer.vatNumber = faker.numerify("###########");
-    customer.phone = faker.phoneNumber().phoneNumber();
-
-    return customer;
-
-  }
-
-  private Employees generateRandomEmployee(Customers cliente,
-      int employeeId) {
-    Employees employee = new Employees();
-
-    employee.customers = cliente;
-    employee.employeeCode = generateNextEmployeeCode(employeeId);
-    employee.firstName = faker.name().firstName();
-    employee.lastName = faker.name().lastName();
-    employee.city = faker.address().city();
-    employee.address = faker.address().streetAddress();
-    employee.email = faker.internet().emailAddress().replace(" ", "");
-    employee.phone = faker.phoneNumber().cellPhone();
-    employee.zipCode = Integer.parseInt(faker.address().zipCode());
-
-    return employee;
-  }
-
-  private String generateNextCustomerCode(int customerId) {
-    return "C" + String.format("%05d", customerId);
-  }
-
-  private String generateNextEmployeeCode(int employeeId) {
-    return "E" + String.format("%07d", employeeId);
-  }
 }

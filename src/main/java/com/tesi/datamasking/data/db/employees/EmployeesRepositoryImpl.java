@@ -47,4 +47,33 @@ public class EmployeesRepositoryImpl implements CustomEmployeesRepository {
       entityManager.close();
     }
   }
+
+  @Override
+  public void updateWithBatchInsert(List<Employees> rows) {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    try {
+      EntityTransaction entityTransaction = entityManager.getTransaction();
+
+      Iterator<Employees> iterator = rows.iterator();
+      entityTransaction.begin();
+      int cont = 0;
+      while (iterator.hasNext()) {
+        entityManager.merge(iterator.next());
+        cont++;
+        if (cont % defaultBatchSize == 0) {
+          entityManager.flush();
+          entityManager.clear();
+          entityTransaction.commit();
+          entityTransaction.begin();
+        }
+      }
+      entityTransaction.commit();
+      entityManagerFactory.getCache().evictAll();
+    } catch (Exception e) {
+      throw e;
+    } finally {
+      entityManager.clear();
+      entityManager.close();
+    }
+  }
 }

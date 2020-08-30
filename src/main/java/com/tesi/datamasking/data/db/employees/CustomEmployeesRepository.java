@@ -6,4 +6,6 @@ public interface CustomEmployeesRepository {
 
   void insertWithBatchInsert(List<Employees> employeesList);
 
+  void updateWithBatchInsert(List<Employees> employeesList);
+
 }
