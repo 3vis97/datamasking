@@ -62,6 +62,20 @@ class FPE_ImplTest {
     }
 
     @Test
+    public void check_length() {
+      String key1 = "12Cd#94qpz!%4/(0";
+      String key2 = "353fwafwg3ad21414";
+
+      String secret = "abcdefghijklmopqrstuvzABCV";
+
+      FPE fpe = new FPE(key1, key2);
+      fpe.useCustomCharset();
+      String secretEncrypted = fpe.encryptString(secret);
+
+      Assert.assertThat(secretEncrypted.length(), CoreMatchers.is(secret.length()));
+    }
+
+    @Test
     public void check_decryption_with_alphanum() {
       String key1 = "12Cd#94qpz!%4/(0";
       String key2 = "353fwafwg3ad21414";

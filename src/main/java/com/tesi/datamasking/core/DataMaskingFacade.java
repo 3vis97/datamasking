@@ -227,20 +227,28 @@ public class DataMaskingFacade extends CoreFacade {
 
   public void cryptAllPayslips(PseudonymizationSetup setup)
       throws Exception {
-    Pageable pageRequest = PageRequest.of(0, 960);
+    Pageable pageRequest = PageRequest.of(0, 9600, Sort.by("employees"));
     Page<Payslips> onePage = payslipsRepository.findAll(pageRequest);
     List<Payslips> newUpdatedPayslips = new ArrayList<>();
+    int counter = 1;
 
     while (!onePage.isEmpty()) {
       pageRequest = pageRequest.next();
 
       List<Payslips> currentpageList = onePage.getContent();
+      List<Payslips> tempList = new ArrayList<>();
       for (Payslips payslip : currentpageList) {
-        newUpdatedPayslips.add(
+        tempList.add(
             (Payslips) cryptSingleEntityAndReturn(setup, payslip, payslipsRepository, cryptDecrypt));
       }
       onePage = payslipsRepository.findAll(pageRequest);
+      System.out.println("Paging... #" + counter++);
+      currentpageList = null;
+      newUpdatedPayslips.addAll(tempList);
+      tempList = null;
+      System.gc();
     }
+    System.out.println("Updating...");
     payslipsRepository.updateWithBatchInsert(newUpdatedPayslips);
     newUpdatedPayslips = null;
     System.gc();

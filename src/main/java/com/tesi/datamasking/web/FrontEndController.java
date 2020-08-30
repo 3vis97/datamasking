@@ -58,7 +58,7 @@ public class FrontEndController extends CoreController {
       response.payslip = dataMaskingFacade
           .getSingleMaskedPayslip(code, Integer.parseInt(month), Integer.parseInt(year));
       stopwatch.stop();
-      response.details = formatPattern("GET PAYSLIP given CODE, MONTH, YEAR", stopwatch);
+      response.details = formatPattern("GET PAYSLIP MASKED given CODE, MONTH, YEAR", stopwatch);
     } catch (Exception e) {
       response.success = false;
       response.error = e.getMessage();
